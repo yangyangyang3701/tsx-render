@@ -6,5 +6,6 @@ export type Render = (
 ) => void;
 
 export const render: Render = (element, container) => {
-    container?.appendChild(element);
+    // container?.appendChild(element);
+    console.log(element);
 };
