@@ -1,9 +1,10 @@
 {
-    "name": "@idealjs/tsx-render",
+    "name": "@idealjs/corn",
     "version": "0.0.1",
     "description": "",
     "scripts": {
-        "build": "tsc"
+        "build": "tsc",
+        "prepublish": "rm -rf dist&yarn build"
     },
     "author": "",
     "license": "ISC",

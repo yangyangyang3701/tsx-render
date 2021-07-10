@@ -5,9 +5,7 @@ export interface HTMLAttributes {}
 export namespace JSX {
     export interface IntrinsicElements {
         // HTML
-        div: {
-            key?: any;
-        };
+        div: any;
     }
 }
 

@@ -10,6 +10,6 @@
         "skipLibCheck": true,
         "forceConsistentCasingInFileNames": true,
         "jsx": "react-jsx",
-        "jsxImportSource": "@idealjs/tsx-render"
+        "jsxImportSource": "@idealjs/corn"
     }
 }
