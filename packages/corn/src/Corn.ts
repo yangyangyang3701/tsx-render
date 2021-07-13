@@ -47,10 +47,10 @@ class Corn implements ICorn {
         props: P,
         key: any
     ) => {
-        console.log("type", type);
         let cornElement: CornElement;
         if (isString(type)) {
             let element: Element;
+            
             const create = () => {
                 element = document.createElement(type);
                 if (isArray(props.children)) {
@@ -69,11 +69,9 @@ class Corn implements ICorn {
                     props.children?.create();
                 }
             };
-            const mount = (target: Element) => {
-                console.log("mount", props.children);
-                if (isArray(props.children)) {
-                    console.log("mount1", props.children, type);
 
+            const mount = (target: Element) => {
+                if (isArray(props.children)) {
                     props.children.forEach((child) => {
                         if (!isCornText(child)) {
                             if (isArray(child)) {
@@ -84,28 +82,21 @@ class Corn implements ICorn {
                                 child.mount(element);
                             }
                         } else {
-                            console.log("test test", child);
                             element.innerHTML += child.toString();
                         }
                     });
                 } else if (!isCornText(props.children)) {
-                    console.log("mount2", props.children, type);
                     props.children?.mount(element);
                 } else {
-                    console.log(
-                        "mount3",
-                        props.children,
-                        target,
-                        element,
-                        type
-                    );
-
                     element.textContent = props.children.toString();
                 }
                 target.appendChild(element);
             };
+
             const update = () => {};
+
             const destory = () => {};
+
             cornElement = {
                 type,
                 props,
