@@ -1,11 +1,8 @@
-import { jsx } from "./jsx-runtime";
+import Corn from "./src/Corn";
+import container from "./src/inversify.config";
+import TYPES from "./src/types";
 
-export type Render = (
-    element: ReturnType<typeof jsx>,
-    container: Element | null
-) => void;
+const corn = container.get<Corn>(TYPES.Corn);
 
-export const render: Render = (element, container) => {
-    // container?.appendChild(element);
-    console.log(element);
-};
+export const render = corn.render;
+export const createRef = corn.createRef;

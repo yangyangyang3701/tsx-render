@@ -2,6 +2,10 @@
     "compilerOptions": {
         "outDir": "./dist",
         "declaration": true,
+        "lib": ["es6", "dom"],
+        "types": ["reflect-metadata"],
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true,
         "target": "es6",
         "module": "esnext",
         "moduleResolution": "node",

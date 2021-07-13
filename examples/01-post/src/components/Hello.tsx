@@ -1,6 +1,17 @@
+import { createRef } from "@idealjs/corn";
+let items: number[] = [1, 2, 3];
 const Hello = (props: { name: string }) => {
     const { name } = props;
-    return <div>Hello {name}</div>;
+    const ref = createRef("");
+    return (
+        <div ref={ref}>
+            Hello {name}
+            {items.map((i) => (
+                <div>{i}</div>
+            ))}
+            Hello {name}
+        </div>
+    );
 };
 
 export default Hello;

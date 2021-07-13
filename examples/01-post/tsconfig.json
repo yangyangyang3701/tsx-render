@@ -10,6 +10,8 @@
         "skipLibCheck": true,
         "forceConsistentCasingInFileNames": true,
         "jsx": "react-jsx",
-        "jsxImportSource": "@idealjs/corn"
+        "jsxImportSource": "@idealjs/corn",
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true,
     }
 }
