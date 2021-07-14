@@ -42,7 +42,7 @@ class Corn implements ICorn {
         element.mount(container);
     };
 
-    public jsx = <P extends Props>(
+    public jsx = <P extends Props = any>(
         type: string | JSXElement<P>,
         props: P,
         key: any
@@ -50,9 +50,16 @@ class Corn implements ICorn {
         let cornElement: CornElement;
         if (isString(type)) {
             let element: Element;
-            
+
             const create = () => {
                 element = document.createElement(type);
+
+                if (type === "button") {
+                    element.addEventListener("click", () => {
+                        console.log("test test");
+                    });
+                }
+
                 if (isArray(props.children)) {
                     props.children.forEach((child) => {
                         if (!isCornText(child)) {
@@ -82,7 +89,9 @@ class Corn implements ICorn {
                                 child.mount(element);
                             }
                         } else {
-                            element.innerHTML += child.toString();
+                            element.appendChild(
+                                document.createTextNode(child.toString())
+                            );
                         }
                     });
                 } else if (!isCornText(props.children)) {
