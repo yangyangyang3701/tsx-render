@@ -3,12 +3,13 @@ import TYPES, {
     CornChild,
     CornElement,
     CreateRef,
+    DOMAttributesOBJ,
     isCornText,
     JSXElement,
     JSXFunction,
     Renderer,
 } from "./types";
-import Dispatcher from "./Dispatcher";
+import Dispatcher, { CreateEffect, CreateSignal } from "./Dispatcher";
 
 const isString = (type: string | JSXElement | CornChild): type is string => {
     return typeof type == "string";
@@ -37,12 +38,11 @@ class Corn implements ICorn {
     constructor() {}
 
     public render = (element: CornElement, container: Element) => {
-        console.debug("[Debug] render", element, container);
         element.create();
         element.mount(container);
     };
 
-    public jsx = <P extends Props = any>(
+    public jsx = <P extends Props = {}>(
         type: string | JSXElement<P>,
         props: P,
         key: any
@@ -53,29 +53,37 @@ class Corn implements ICorn {
 
             const create = () => {
                 element = document.createElement(type);
-
-                if (type === "button") {
-                    element.addEventListener("click", () => {
-                        console.log("test test");
-                    });
-                }
-
-                if (isArray(props.children)) {
-                    props.children.forEach((child) => {
-                        if (!isCornText(child)) {
-                            if (isArray(child)) {
-                                child.forEach((child) => {
-                                    child.create();
-                                });
-                            } else {
-                                child.create();
-                            }
+                Object.entries(props).forEach((entry) => {
+                    if (entry[0] === "children") {
+                        if (isArray(props.children)) {
+                            props.children.forEach((child) => {
+                                if (!isCornText(child)) {
+                                    if (isArray(child)) {
+                                        child.forEach((child) => {
+                                            child.create();
+                                        });
+                                    } else {
+                                        child.create();
+                                    }
+                                }
+                            });
+                        } else if (!isCornText(props.children)) {
+                            props.children?.create();
                         }
-                    });
-                } else if (!isCornText(props.children)) {
-                    props.children?.create();
-                }
+                    }
+                    if (entry[0] === "style") {
+                    }
+                    if (DOMAttributesOBJ[entry[0]] != null) {
+                        Reflect.set(
+                            element,
+                            DOMAttributesOBJ[entry[0]],
+                            entry[1]
+                        );
+                    }
+                });
             };
+
+            const upsert = () => {};
 
             const mount = (target: Element) => {
                 if (isArray(props.children)) {
@@ -130,6 +138,14 @@ class Corn implements ICorn {
             current: value,
         };
     }
+
+    public createSignal: CreateSignal = <T>(initialState?: T) => {
+        return this._dispatcher.createSignal(initialState);
+    };
+
+    public createEffect: CreateEffect = (fn) => {
+        return this._dispatcher.createEffect(fn);
+    };
 }
 
 export default Corn;
