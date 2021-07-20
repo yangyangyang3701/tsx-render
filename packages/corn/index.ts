@@ -6,6 +6,3 @@ const corn = container.get<Corn>(TYPES.Corn);
 
 export { default as Corn } from "./src/Corn";
 export const render = corn.render;
-export const createRef = corn.createRef;
-export const createSignal = corn.createSignal;
-export const createEffect = corn.createEffect;

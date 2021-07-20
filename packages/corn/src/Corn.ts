@@ -1,15 +1,13 @@
-import { inject, injectable } from "inversify";
-import TYPES, {
+import { injectable } from "inversify";
+import {
     CornChild,
     CornElement,
-    CreateRef,
     DOMAttributesOBJ,
     isCornText,
     JSXElement,
     JSXFunction,
     Renderer,
 } from "./types";
-import Dispatcher, { CreateEffect, CreateSignal } from "./Dispatcher";
 
 const isString = (type: string | JSXElement | CornChild): type is string => {
     return typeof type == "string";
@@ -22,7 +20,6 @@ const isArray = <T>(data: T | T[]): data is T[] => {
 interface ICorn {
     render: Renderer;
     jsx: JSXFunction;
-    createRef: CreateRef;
 }
 
 export interface Props {
@@ -32,9 +29,6 @@ export interface Props {
 
 @injectable()
 class Corn implements ICorn {
-    @inject(TYPES.Dispatcher)
-    private _dispatcher!: Dispatcher;
-
     constructor() {}
 
     public render = (element: CornElement, container: Element) => {
@@ -131,20 +125,6 @@ class Corn implements ICorn {
             props.ref.current = cornElement;
         }
         return cornElement;
-    };
-
-    public createRef<T>(value?: T) {
-        return {
-            current: value,
-        };
-    }
-
-    public createSignal: CreateSignal = <T>(initialState?: T) => {
-        return this._dispatcher.createSignal(initialState);
-    };
-
-    public createEffect: CreateEffect = (fn) => {
-        return this._dispatcher.createEffect(fn);
     };
 }
 
