@@ -28,19 +28,6 @@ export type JSXFunction = <P extends {}>(
     key: any
 ) => CornElement<P>;
 
-export interface RefObject<T> {
-    readonly current: T | null;
-}
-
-export interface MutableRefObject<T> {
-    current: T;
-}
-
-export interface CreateRef {
-    <T>(initialValue: T | undefined): RefObject<T>;
-    <T>(initialValue: T): MutableRefObject<T>;
-}
-
 export const DOMAttributesOBJ: {
     [name: string]: string;
 } = {
@@ -223,7 +210,7 @@ export const DOMAttributesOBJ: {
 
 const TYPES = {
     Corn: Symbol("Corn"),
-    Dispatcher: Symbol("Dispatcher"),
+    Reactive: Symbol("Reactive"),
 };
 
 export default TYPES;
