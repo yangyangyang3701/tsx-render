@@ -1,5 +1,5 @@
 type ReadFunction<T> = () => T;
-type WriteFunction<T> = (next: T) => void;
+type WriteFunction<T> = (next: T | ((preValue: T) => T)) => void;
 type Effect = () => void;
 interface IRoot {
     effects: Effect[];
@@ -25,7 +25,7 @@ interface IReactive {
 }
 
 class Reactive implements IReactive {
-    private roots: IRoot[];
+    private roots: IRoot[] = [];
     private static handler = (effects: Set<Effect>, root: IRoot) => ({
         get(target: object, p: string | symbol, receiver: any) {
             const effect = root.effects[root.effects.length - 1];
@@ -69,20 +69,20 @@ class Reactive implements IReactive {
 
     public createSignal = <T>(
         value?: T
-    ): [ReadFunction<T>, WriteFunction<T>] => {
+    ): [ReadFunction<typeof value>, WriteFunction<typeof value>] => {
         const root = this.roots[this.roots.length - 1];
         const effects = new Set<Effect>();
 
-        const proxy = new Proxy<{ value: T }>(
+        const proxy = new Proxy<{ value: typeof value }>(
             { value },
             Reactive.handler(effects, root)
         );
 
-        const read = () => {
+        const read: ReadFunction<typeof value> = () => {
             return proxy.value;
         };
 
-        const write = (nextValue: T | ((preValue: T) => T)) => {
+        const write: WriteFunction<typeof value> = (nextValue) => {
             if (isSetFunction(nextValue)) {
                 proxy.value = nextValue(proxy.value);
             } else {
@@ -108,3 +108,5 @@ class Reactive implements IReactive {
         root.batch.effects.clear();
     };
 }
+
+export default Reactive;
