@@ -13,18 +13,11 @@ const isSetFunction = <T>(v: T | ((d: T) => T)): v is (d: T) => T => {
     return typeof v === "function";
 };
 
-interface IReactive {
-    createRoot: (fn: () => void) => void;
-    createSignal<T>(): [
-        ReadFunction<T | undefined>,
-        WriteFunction<T | undefined>
-    ];
-    createSignal<T>(value: T): [ReadFunction<T>, WriteFunction<T>];
-    createEffect: (fn: () => void) => void;
-    batch: (fn: () => void) => void;
-}
+const isT = <T>(v?: T): v is T => {
+    return v != null;
+};
 
-class Reactive implements IReactive {
+class Reactive {
     private roots: IRoot[] = [];
     private static handler = (effects: Set<Effect>, root: IRoot) => ({
         get(target: object, p: string | symbol, receiver: any) {
@@ -67,9 +60,16 @@ class Reactive implements IReactive {
         this.roots.pop();
     };
 
-    public createSignal = <T>(
+    public createSignal<T>(): [
+        ReadFunction<T | undefined>,
+        WriteFunction<T | undefined>
+    ];
+
+    public createSignal<T>(value: T): [ReadFunction<T>, WriteFunction<T>];
+
+    public createSignal<T>(
         value?: T
-    ): [ReadFunction<typeof value>, WriteFunction<typeof value>] => {
+    ): [ReadFunction<typeof value>, WriteFunction<typeof value>] {
         const root = this.roots[this.roots.length - 1];
         const effects = new Set<Effect>();
 
@@ -84,13 +84,13 @@ class Reactive implements IReactive {
 
         const write: WriteFunction<typeof value> = (nextValue) => {
             if (isSetFunction(nextValue)) {
-                proxy.value = nextValue(proxy.value);
+                proxy.value = value = nextValue(value);
             } else {
-                proxy.value = nextValue;
+                proxy.value = value = nextValue;
             }
         };
         return [read, write];
-    };
+    }
 
     public createEffect = (fn: () => void) => {
         const root = this.roots[this.roots.length - 1];
