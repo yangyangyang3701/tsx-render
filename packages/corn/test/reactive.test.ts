@@ -82,3 +82,59 @@ describe("object test", () => {
         });
     });
 });
+
+describe("nest test", () => {
+    test("test 1", () => {
+        const reactive = new Reactive();
+        reactive.createRoot(() => {
+            const [name, setName] = reactive.createSignal<string>();
+            let count = 0;
+
+            reactive.createEffect(() => {
+                name();
+                reactive.createEffect(() => {
+                    name();
+                    count = count + 1;
+                });
+            });
+
+            expect(count).toBe(1);
+
+            let name1 = "world";
+            setName(name1);
+            expect(count).toBe(3);
+
+            let name2 = "world world";
+            setName(name2);
+            expect(count).toBe(6);
+        });
+    });
+
+    test("test 2", () => {
+        const reactive = new Reactive();
+        reactive.createRoot(() => {
+            const [name, setName] = reactive.createSignal<string>();
+            let count = 0;
+
+            reactive.createEffect(() => {
+                name();
+                reactive.createRoot(() => {
+                    reactive.createEffect(() => {
+                        name();
+                        count = count + 1;
+                    });
+                });
+            });
+
+            expect(count).toBe(1);
+
+            let name1 = "world";
+            setName(name1);
+            expect(count).toBe(2);
+
+            let name2 = "world world";
+            setName(name2);
+            expect(count).toBe(3);
+        });
+    });
+});
