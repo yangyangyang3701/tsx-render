@@ -31,6 +31,36 @@ describe("basic test", () => {
             const [result, setResult] = reactive.createSignal<
                 string | undefined
             >(name());
+
+            reactive.createEffect(() => {
+                setResult(name());
+            });
+
+            let name1 = "world";
+            setName((name) => {
+                expect(name).toBe(undefined);
+                return name1;
+            });
+            expect(name()).toBe(name1);
+            expect(result()).toBe(name1);
+
+            let name2 = "world world";
+            setName(() => {
+                expect(name).toBe(name1);
+                return name2;
+            });
+            expect(name()).toBe(name2);
+            expect(result()).toBe(name2);
+        });
+    });
+
+    test("test 3", () => {
+        const reactive = new Reactive();
+        reactive.createRoot(() => {
+            const [name, setName] = reactive.createSignal<string>();
+            const [result, setResult] = reactive.createSignal<
+                string | undefined
+            >(name());
             let count = 0;
 
             reactive.createEffect(() => {
