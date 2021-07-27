@@ -13,10 +13,8 @@ const isSetFunction = <T>(v: T | ((d: T) => T)): v is (d: T) => T => {
     return typeof v === "function";
 };
 
-const isT = <T>(v?: T): v is T => {
-    return v != null;
-};
 
+//Publish–subscribe pattern
 class Reactive {
     private roots: IRoot[] = [];
     private static handler = (effects: Set<Effect>, root: IRoot) => ({
