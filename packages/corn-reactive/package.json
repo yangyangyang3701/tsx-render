@@ -1,0 +1,17 @@
+{
+    "name": "corn-reactive",
+    "version": "1.0.0",
+    "main": "index.js",
+    "license": "MIT",
+    "scripts": {
+        "build": "tsc",
+        "prepublish": "rm -rf dist&yarn build",
+        "test": "jest"
+    },
+    "devDependencies": {
+        "@types/jest": "^26.0.24",
+        "jest": "^27.0.6",
+        "ts-jest": "^27.0.4",
+        "typescript": "^4.3.5"
+    }
+}

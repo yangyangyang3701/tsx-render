@@ -13,7 +13,6 @@ const isSetFunction = <T>(v: T | ((d: T) => T)): v is (d: T) => T => {
     return typeof v === "function";
 };
 
-
 //Publish–subscribe pattern
 class Reactive {
     private roots: IRoot[] = [];
