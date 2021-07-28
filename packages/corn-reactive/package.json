@@ -1,10 +1,9 @@
 {
-    "name": "corn-reactive",
+    "name": "@idealjs/corn-reactive",
     "version": "1.0.0",
-    "main": "index.js",
     "license": "MIT",
     "scripts": {
-        "build": "tsc",
+        "build": "tsc -p tsconfig.build.json",
         "prepublish": "rm -rf dist&yarn build",
         "test": "jest"
     },
