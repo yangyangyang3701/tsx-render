@@ -1,5 +1,7 @@
-import { injectable } from "inversify";
-import {
+import { inject, injectable } from "inversify";
+import Reactive from "@idealjs/corn-reactive";
+
+import TYPES, {
     CornChild,
     CornElement,
     DOMAttributesOBJ,
@@ -25,14 +27,18 @@ interface ICorn {
 export interface Props {
     ref?: any;
     children?: CornChild | CornChild[];
+    onClick?: () => void;
 }
 
 @injectable()
 class Corn implements ICorn {
+    @inject(TYPES.Reactive)
+    public reactive!: Reactive;
+
     constructor() {}
 
     public render = (element: CornElement, container: Element) => {
-        element.create();
+        element.createElement();
         element.mount(container);
     };
 
@@ -41,90 +47,112 @@ class Corn implements ICorn {
         props: P,
         key: any
     ) => {
-        let cornElement: CornElement;
-        if (isString(type)) {
-            let element: Element;
+        let cornElement: CornElement | null = null;
 
-            const create = () => {
-                element = document.createElement(type);
-                Object.entries(props).forEach((entry) => {
-                    if (entry[0] === "children") {
-                        if (isArray(props.children)) {
-                            props.children.forEach((child) => {
-                                if (!isCornText(child)) {
-                                    if (isArray(child)) {
-                                        child.forEach((child) => {
+        this.reactive.createRoot(() => {
+            if (isString(type)) {
+                let element: Element;
+
+                const create = () => {
+                    element = document.createElement(type);
+                    Object.entries(props).forEach((entry) => {
+                        if (entry[0] === "children") {
+                            if (isArray(props.children)) {
+                                props.children.forEach((child) => {
+                                    if (!isCornText(child)) {
+                                        if (isArray(child)) {
+                                            child.forEach((child) => {
+                                                child.create();
+                                            });
+                                        } else {
                                             child.create();
-                                        });
-                                    } else {
-                                        child.create();
+                                        }
                                     }
-                                }
-                            });
-                        } else if (!isCornText(props.children)) {
-                            props.children?.create();
-                        }
-                    }
-                    if (entry[0] === "style") {
-                    }
-                    if (DOMAttributesOBJ[entry[0]] != null) {
-                        Reflect.set(
-                            element,
-                            DOMAttributesOBJ[entry[0]],
-                            entry[1]
-                        );
-                    }
-                });
-            };
-
-            const upsert = () => {};
-
-            const mount = (target: Element) => {
-                if (isArray(props.children)) {
-                    props.children.forEach((child) => {
-                        if (!isCornText(child)) {
-                            if (isArray(child)) {
-                                child.forEach((child) => {
-                                    child.mount(element);
                                 });
-                            } else {
-                                child.mount(element);
+                            } else if (!isCornText(props.children)) {
+                                props.children?.create();
                             }
-                        } else {
-                            element.appendChild(
-                                document.createTextNode(child.toString())
+                        }
+                        if (entry[0] === "style") {
+                        }
+                        if (DOMAttributesOBJ[entry[0]] != null) {
+                            Reflect.set(
+                                element,
+                                DOMAttributesOBJ[entry[0]],
+                                entry[1]
                             );
                         }
                     });
-                } else if (!isCornText(props.children)) {
-                    props.children?.mount(element);
-                } else {
-                    element.textContent = props.children.toString();
-                }
-                target.appendChild(element);
-            };
+                };
 
-            const update = () => {};
+                const upsert = () => {};
 
-            const destory = () => {};
+                const mount = (target: Element) => {
+                    if (isArray(props.children)) {
+                        props.children.forEach((child) => {
+                            if (!isCornText(child)) {
+                                if (isArray(child)) {
+                                    child.forEach((child) => {
+                                        child.mount(element);
+                                    });
+                                } else {
+                                    child.mount(element);
+                                }
+                            } else {
+                                element.appendChild(
+                                    document.createTextNode(child.toString())
+                                );
+                            }
+                        });
+                    } else if (!isCornText(props.children)) {
+                        props.children?.mount(element);
+                    } else {
+                        element.textContent = props.children.toString();
+                    }
+                    target.appendChild(element);
+                };
 
-            cornElement = {
-                type,
-                props,
-                key,
-                create,
-                mount,
-                update,
-                destory,
-            };
-        } else {
-            cornElement = type(props);
-        }
+                const update = () => {};
 
-        if (props.ref) {
-            props.ref.current = cornElement;
-        }
-        return cornElement;
+                const destory = () => {};
+
+                const createElement = () => {
+                    //@ts-ignore
+                    this.reactive.createRoot(() => {
+                        let inited = false;
+                        this.reactive.createEffect(() => {
+                            if (!inited) {
+                                create();
+                                inited = true;
+                            } else {
+                                console.log("test test update");
+                                update();
+                            }
+                        });
+                    });
+                };
+
+                cornElement = {
+                    type,
+                    props,
+                    key,
+
+                    create,
+                    mount,
+                    update,
+                    destory,
+                    createElement,
+                };
+            } else {
+                cornElement = type(props);
+            }
+
+            if (props.ref) {
+                props.ref.current = cornElement;
+            }
+        });
+
+        return cornElement!;
     };
 }
 

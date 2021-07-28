@@ -16,6 +16,7 @@ export interface CornElement<P = any> {
     mount: (container: Element) => void;
     update: () => void;
     destory: () => void;
+    createElement: () => void;
 }
 
 export type JSXElement<P = any> = (props: P) => CornElement<P>;

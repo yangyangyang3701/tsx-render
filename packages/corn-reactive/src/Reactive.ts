@@ -16,6 +16,9 @@ const isSetFunction = <T>(v: T | ((d: T) => T)): v is (d: T) => T => {
 //Publish–subscribe pattern
 class Reactive {
     private roots: IRoot[] = [];
+    constructor() {
+        this.createSignal = this.createSignal.bind(this);
+    }
     private static handler = (effects: Set<Effect>, root: IRoot) => ({
         get(target: object, p: string | symbol, receiver: any) {
             const effect = root.effects[root.effects.length - 1];
@@ -90,6 +93,7 @@ class Reactive {
     }
 
     public createEffect = (fn: () => void) => {
+        console.debug("[debug] create effect");
         const root = this.roots[this.roots.length - 1];
         root.effects.push(fn);
         fn();
