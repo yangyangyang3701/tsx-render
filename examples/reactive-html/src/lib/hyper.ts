@@ -4,9 +4,15 @@ interface IProps {
     children?: string[];
 }
 
-export const hyperX = <P extends IProps>(
-    type: (props: P) => Element,
-    getProps?: () => P
+type TypeFunc<P> = (props: P) => Element;
+
+type Props<T extends (props: any) => any> = T extends (props: infer P) => any
+    ? P
+    : undefined;
+
+export const hyperX = <T extends P, P = undefined>(
+    type: TypeFunc<P>,
+    getProps?: () => T
 ) => {
     let element: Element | null = null;
     let props: P | undefined = undefined;
