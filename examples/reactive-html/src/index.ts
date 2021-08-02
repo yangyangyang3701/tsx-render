@@ -1,3 +1,10 @@
+import { createRoot } from "../../../packages/corn";
+import App from "./App";
+import { hyperX } from "./lib/hyper";
+
 window.onload = () => {
-    console.log("test test");
+    const root = document.getElementById("App");
+    createRoot(() => {
+        root?.append(hyperX(App));
+    });
 };
