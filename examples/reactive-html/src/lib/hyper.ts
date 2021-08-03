@@ -14,12 +14,10 @@ export const hyperX = <T extends P, P = undefined>(
     type: TypeFunc<P>,
     getProps?: () => T
 ) => {
-    let element: Element | null = null;
-    let props: P | undefined = undefined;
-    props = (getProps && getProps()) || ({} as P);
-    element = type(props);
+    const props = (getProps && getProps()) || ({} as P);
+    const element = type(props);
 
-    return element!;
+    return element;
 };
 
 export const hyper = <P extends IProps>(type: string, getProps?: () => P) => {
