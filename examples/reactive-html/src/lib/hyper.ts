@@ -8,12 +8,10 @@ export const hyperX = <P extends IProps>(
     type: (props: P) => Element,
     getProps?: () => P
 ) => {
-    let element: Element | null = null;
-    let props: P | undefined = undefined;
-    props = (getProps && getProps()) || ({} as P);
-    element = type(props);
+    const props = (getProps && getProps()) || ({} as P);
+    const element = type(props);
 
-    return element!;
+    return element;
 };
 
 export const hyper = <P extends IProps>(type: string, getProps?: () => P) => {
