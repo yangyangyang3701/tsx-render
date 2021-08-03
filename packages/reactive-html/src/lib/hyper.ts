@@ -2,6 +2,8 @@ import { createEffect } from "@idealjs/corn";
 
 interface IProps {
     children?: (string | (() => Element))[];
+    onClick?: any;
+    style?: any;
 }
 
 type TypeFunc<P> = (props: P) => Element;
@@ -16,10 +18,7 @@ export const hyperX = <T extends P, P = undefined>(
     return element;
 };
 
-export const hyper = <T extends P, P extends IProps>(
-    type: string,
-    getProps?: () => T
-) => {
+export const hyper = <P extends IProps>(type: string, getProps?: () => P) => {
     let element: Element | null = null;
 
     let inited = false;
@@ -33,7 +32,8 @@ export const hyper = <T extends P, P extends IProps>(
         element = document.createElement(type);
 
         for (const key in props) {
-            // assign props to element if key in element
+            console.log("test test", key, key.toLowerCase() in element);
+            // assign props to element if key in element. onClick -> onclick
             if (key.toLowerCase() in element) {
                 Reflect.set(element, key.toLowerCase(), props[key]);
             }

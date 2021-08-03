@@ -12,7 +12,11 @@ const Hello = (props: {}) => {
         children: [
             "hello ",
             name(),
-            () => hyper("button", () => ({ onClick, children: ["button"] })),
+            () =>
+                hyper("button", () => ({
+                    children: ["change name"],
+                    onClick,
+                })),
         ],
     }));
 
