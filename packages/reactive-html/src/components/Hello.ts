@@ -1,12 +1,17 @@
 import { createSignal } from "@idealjs/corn";
-import { hyper } from "../lib/hyper";
+import { hyper, hyperX } from "../lib/hyper";
 
 const Hello = (props: {}) => {
     const [name, setName] = createSignal<string>("world");
     const [color, setColor] = createSignal<string>("red");
-    const onClick = () => {
+
+    const changeName = () => {
         const randomNum = Math.random();
         setName(randomNum.toFixed(2).toString());
+    };
+
+    const changeColor = () => {
+        const randomNum = Math.random();
         if (randomNum > 0.5) {
             setColor("blue");
         } else {
@@ -19,14 +24,23 @@ const Hello = (props: {}) => {
         children: [
             "hello ",
             name(),
-            () =>
+
+            hyper("button", () => ({
+                children: ["change name"],
+                onClick: changeName,
+                style: {
+                    marginLeft: "10px",
+                },
+            })),
+            hyperX(() =>
                 hyper("button", () => ({
-                    children: ["change name"],
-                    onClick,
+                    children: ["change color"],
+                    onClick: changeColor,
                     style: {
                         marginLeft: "10px",
                     },
-                })),
+                }))
+            ),
         ],
     }));
 

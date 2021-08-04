@@ -1,7 +1,7 @@
-import { createEffect } from "@idealjs/corn";
+import { createEffect, createRoot } from "@idealjs/corn";
 
 interface IProps {
-    children?: (string | (() => Element))[];
+    children?: (string | Element)[];
     onClick?: any;
     style?: any;
 }
@@ -12,13 +12,15 @@ export const hyperX = <T extends P, P = undefined>(
     type: TypeFunc<P>,
     getProps?: () => T
 ) => {
+    console.debug("[debug] hyperX start");
     const props = (getProps && getProps()) || ({} as P);
     const element = type(props);
-
+    console.debug("[debug] hyperX end");
     return element;
 };
 
 export const hyper = <P extends IProps>(type: string, getProps?: () => P) => {
+    console.debug("[debug] hyper start");
     let element: Element | null = null;
 
     let inited = false;
@@ -32,7 +34,6 @@ export const hyper = <P extends IProps>(type: string, getProps?: () => P) => {
         element = document.createElement(type);
 
         for (const key in props) {
-            console.log("test test", key, key.toLowerCase() in element);
             // assign props to element if key in element. onClick -> onclick
             if (key === "style" && element instanceof HTMLElement) {
                 for (const styleKey in props[key]) {
@@ -48,8 +49,8 @@ export const hyper = <P extends IProps>(type: string, getProps?: () => P) => {
 
         children =
             props?.children?.map((child) => {
-                if (child instanceof Function) {
-                    return child();
+                if (child instanceof Element) {
+                    return child;
                 } else {
                     return document.createTextNode(child);
                 }
@@ -63,8 +64,9 @@ export const hyper = <P extends IProps>(type: string, getProps?: () => P) => {
     };
 
     const update = () => {
+        console.debug("[debug] hyper update");
+
         props = getProps && getProps();
-        console.debug("[debug] hyper update", props);
 
         props?.children?.forEach((value, index) => {
             if (
@@ -78,12 +80,13 @@ export const hyper = <P extends IProps>(type: string, getProps?: () => P) => {
 
     createEffect(() => {
         console.debug("[debug] hyper effect");
-
-        if (!inited) {
-            create();
-        } else {
-            update();
-        }
+        createRoot(() => {
+            if (!inited) {
+                create();
+            } else {
+                update();
+            }
+        });
     });
 
     return element!;

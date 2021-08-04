@@ -48,6 +48,7 @@ class Reactive {
     });
 
     public createRoot = (fn: () => void) => {
+        console.debug("[debug] createRoot");
         const root: IRoot = {
             effects: [],
             batch: {
