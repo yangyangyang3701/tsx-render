@@ -3,12 +3,19 @@ import { hyper } from "../lib/hyper";
 
 const Hello = (props: {}) => {
     const [name, setName] = createSignal<string>("world");
-
+    const [color, setColor] = createSignal<string>("red");
     const onClick = () => {
-        setName(Math.random().toFixed(2).toString());
+        const randomNum = Math.random();
+        setName(randomNum.toFixed(2).toString());
+        if (randomNum > 0.5) {
+            setColor("blue");
+        } else {
+            setColor("red");
+        }
     };
 
     const el = hyper("div", () => ({
+        style: { color: color() },
         children: [
             "hello ",
             name(),
@@ -16,6 +23,9 @@ const Hello = (props: {}) => {
                 hyper("button", () => ({
                     children: ["change name"],
                     onClick,
+                    style: {
+                        marginLeft: "10px",
+                    },
                 })),
         ],
     }));

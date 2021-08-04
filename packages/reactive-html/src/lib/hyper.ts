@@ -34,8 +34,15 @@ export const hyper = <P extends IProps>(type: string, getProps?: () => P) => {
         for (const key in props) {
             console.log("test test", key, key.toLowerCase() in element);
             // assign props to element if key in element. onClick -> onclick
+            if (key === "style" && element instanceof HTMLElement) {
+                for (const styleKey in props[key]) {
+                    Reflect.set(element.style, styleKey, props[key][styleKey]);
+                }
+                continue;
+            }
             if (key.toLowerCase() in element) {
                 Reflect.set(element, key.toLowerCase(), props[key]);
+                continue;
             }
         }
 
@@ -56,9 +63,9 @@ export const hyper = <P extends IProps>(type: string, getProps?: () => P) => {
     };
 
     const update = () => {
-        console.debug("[debug] hyper update");
-
         props = getProps && getProps();
+        console.debug("[debug] hyper update", props);
+
         props?.children?.forEach((value, index) => {
             if (
                 !(children[index] instanceof Element) &&
