@@ -6,6 +6,7 @@ const Hello = (props: {}) => {
     const [color, setColor] = createSignal<string>("red");
 
     const changeName = () => {
+        console.log("test test change name");
         const randomNum = Math.random();
         setName(randomNum.toFixed(2).toString());
     };
@@ -19,30 +20,29 @@ const Hello = (props: {}) => {
         }
     };
 
-    const el = hyper("div", () => ({
-        style: { color: color() },
-        children: [
-            "hello ",
-            name(),
-
+    const el = hyper(
+        "div",
+        () => ({
+            style: { color: color() },
+            children: ["hello ", name()],
+        }),
+        hyper("button", () => ({
+            children: ["change name"],
+            onClick: changeName,
+            style: {
+                marginLeft: "10px",
+            },
+        })),
+        hyperX(() =>
             hyper("button", () => ({
-                children: ["change name"],
-                onClick: changeName,
+                children: ["change color"],
+                onClick: changeColor,
                 style: {
                     marginLeft: "10px",
                 },
-            })),
-            hyperX(() =>
-                hyper("button", () => ({
-                    children: ["change color"],
-                    onClick: changeColor,
-                    style: {
-                        marginLeft: "10px",
-                    },
-                }))
-            ),
-        ],
-    }));
+            }))
+        )
+    );
 
     return el;
 };

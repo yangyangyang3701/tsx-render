@@ -1,7 +1,7 @@
 import { createEffect, createRoot } from "@idealjs/corn";
 
 interface IProps {
-    children?: (string | Element)[];
+    children?: string[];
     onClick?: any;
     style?: any;
 }
@@ -19,13 +19,17 @@ export const hyperX = <T extends P, P = undefined>(
     return element;
 };
 
-export const hyper = <P extends IProps>(type: string, getProps?: () => P) => {
+export const hyper = <P extends IProps>(
+    type: string,
+    getProps?: () => P,
+    ...Elements: Element[]
+) => {
     console.debug("[debug] hyper start");
     let element: Element | null = null;
 
     let inited = false;
     let props: P | undefined = undefined;
-    let children: (Text | Element)[] = [];
+    let children: Text[] = [];
 
     const create = () => {
         console.debug("[debug] hyper create");
@@ -42,6 +46,7 @@ export const hyper = <P extends IProps>(type: string, getProps?: () => P) => {
                 continue;
             }
             if (key.toLowerCase() in element) {
+                console.log("test test set listener", type);
                 Reflect.set(element, key.toLowerCase(), props[key]);
                 continue;
             }
@@ -49,15 +54,15 @@ export const hyper = <P extends IProps>(type: string, getProps?: () => P) => {
 
         children =
             props?.children?.map((child) => {
-                if (child instanceof Element) {
-                    return child;
-                } else {
-                    return document.createTextNode(child);
-                }
+                return document.createTextNode(child);
             }) || [];
 
         children.forEach((child) => {
             element?.append(child);
+        });
+
+        Elements.forEach((e) => {
+            element?.append(e);
         });
 
         inited = true;
@@ -79,10 +84,11 @@ export const hyper = <P extends IProps>(type: string, getProps?: () => P) => {
     };
 
     createEffect(() => {
-        console.debug("[debug] hyper effect");
+        console.debug("[debug] hyper effect", type, inited);
         createRoot(() => {
             if (!inited) {
                 create();
+                inited = true;
             } else {
                 update();
             }
