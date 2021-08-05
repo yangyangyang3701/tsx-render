@@ -1,7 +1,7 @@
 import { createEffect, createRoot } from "@idealjs/corn";
 
 interface IProps {
-    children?: string[];
+    children?: (string | Element)[];
     onClick?: any;
     style?: any;
 }
@@ -19,17 +19,13 @@ export const hyperX = <T extends P, P = undefined>(
     return element;
 };
 
-export const hyper = <P extends IProps>(
-    type: string,
-    getProps?: () => P,
-    ...Elements: Element[]
-) => {
+export const hyper = <P extends IProps>(type: string, getProps?: () => P) => {
     console.debug("[debug] hyper start");
     let element: Element | null = null;
 
     let inited = false;
     let props: P | undefined = undefined;
-    let children: Text[] = [];
+    let children: (Text | Element)[] = [];
 
     const create = () => {
         console.debug("[debug] hyper create");
@@ -46,7 +42,6 @@ export const hyper = <P extends IProps>(
                 continue;
             }
             if (key.toLowerCase() in element) {
-                console.log("test test set listener", type);
                 Reflect.set(element, key.toLowerCase(), props[key]);
                 continue;
             }
@@ -54,15 +49,15 @@ export const hyper = <P extends IProps>(
 
         children =
             props?.children?.map((child) => {
-                return document.createTextNode(child);
+                if (child instanceof Element) {
+                    return child;
+                } else {
+                    return document.createTextNode(child);
+                }
             }) || [];
 
         children.forEach((child) => {
             element?.append(child);
-        });
-
-        Elements.forEach((e) => {
-            element?.append(e);
         });
 
         inited = true;
