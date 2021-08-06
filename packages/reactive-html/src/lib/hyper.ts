@@ -80,12 +80,14 @@ export const hyper = <P extends IProps>(type: string, getProps?: () => P) => {
 
     createEffect(() => {
         console.debug("[debug] hyper effect", type, inited);
-        if (!inited) {
-            create();
-            inited = true;
-        } else {
-            update();
-        }
+        createRoot(() => {
+            if (!inited) {
+                create();
+                inited = true;
+            } else {
+                update();
+            }
+        });
     });
 
     return element!;
