@@ -1,7 +1,7 @@
 import { createSignal } from "@idealjs/corn";
 import { hyper, hyperX } from "../lib/hyper";
 
-const Hello = (props: {}) => {
+const Hello = () => {
     const [name, setName] = createSignal<string>("world");
     const [color, setColor] = createSignal<string>("red");
 
@@ -19,30 +19,33 @@ const Hello = (props: {}) => {
         }
     };
 
-    const el = hyper("div", () => ({
-        style: { color: color() },
-        children: [
-            "hello ",
-            name(),
-
-            hyper("button", () => ({
-                children: ["change name"],
-                onClick: changeName,
-                style: {
-                    marginLeft: "10px",
-                },
-            })),
-            hyperX(() =>
-                hyper("button", () => ({
-                    children: ["change color"],
-                    onClick: changeColor,
+    const el = hyper(
+        "div",
+        {
+            style: { color: color() },
+            children: [
+                "hello ",
+                name,
+                hyper("button", {
+                    children: ["change name"],
+                    onClick: changeName,
                     style: {
                         marginLeft: "10px",
                     },
-                }))
-            ),
-        ],
-    }));
+                }),
+                hyperX((props: {}) =>
+                    hyper("button", {
+                        children: ["change color"],
+                        onClick: changeColor,
+                        style: {
+                            marginLeft: "10px",
+                        },
+                    })
+                ),
+            ],
+        },
+        ["name"]
+    );
 
     return el;
 };

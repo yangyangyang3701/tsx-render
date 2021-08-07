@@ -1,5 +1,5 @@
-type ReadFunction<T> = () => T;
-type WriteFunction<T> = (next: T | ((preValue: T) => T)) => void;
+export type ReadFunction<T> = () => T;
+export type WriteFunction<T> = (next: T | ((preValue: T) => T)) => void;
 type Effect = () => void;
 interface IRoot {
     effects: Effect[];

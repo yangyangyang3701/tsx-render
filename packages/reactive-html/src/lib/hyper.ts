@@ -1,24 +1,39 @@
 import { createEffect, createRoot } from "@idealjs/corn";
+import { ReadFunction } from "../../../corn-reactive";
 
 interface IProps {
-    children?: (string | Element)[];
+    children?: (string | Element | ReadFunction<any>)[];
     onClick?: any;
     style?: any;
 }
 
 type TypeFunc<P> = (props: P) => Element;
 
-export function hyperX<T extends P, P = undefined>(
-    type: TypeFunc<P>,
-    getProps?: () => T
-): Element;
+const proxyHandler = <T extends {}>(
+    proxyKeys: (string | symbol)[]
+): ProxyHandler<T> => ({
+    get(target, p, reciver) {
+        if (proxyKeys.includes(p)) {
+            return Reflect.get(target, p, reciver)();
+        } else {
+            return Reflect.get(target, p, reciver);
+        }
+    },
+});
 
 export function hyperX<T extends P, P = undefined>(
     type: TypeFunc<P>,
-    getProps?: () => T
+    config?: T,
+    proxyKeys?: (string | symbol)[]
+): Element;
+
+export function hyperX(
+    type: TypeFunc<{}>,
+    config: {} = {},
+    proxyKeys: (string | symbol)[] = []
 ) {
     console.debug("[debug] hyperX start");
-    const props = (getProps && getProps()) || ({} as P);
+    const props = new Proxy(config, proxyHandler(proxyKeys));
     const element = type(props);
     console.debug("[debug] hyperX end");
     return element;
@@ -26,21 +41,24 @@ export function hyperX<T extends P, P = undefined>(
 
 export function hyper<P extends IProps>(
     type: string,
-    getProps?: () => P
+    config?: P,
+    proxyKeys?: (string | symbol)[]
 ): Element;
 
-export function hyper<P extends IProps>(type: string, getProps?: () => P) {
+export function hyper(
+    type: string,
+    config: {} = {},
+    proxyKeys: (string | symbol)[] = []
+) {
     console.debug("[debug] hyper start");
     let element: Element | null = null;
 
     let inited = false;
-    let props: P | undefined = undefined;
+    const props = new Proxy<IProps>(config, proxyHandler(proxyKeys));
     let children: (Text | Element)[] = [];
 
     const create = () => {
         console.debug("[debug] hyper create");
-
-        props = getProps && getProps();
         element = document.createElement(type);
 
         for (const key in props) {
@@ -51,7 +69,8 @@ export function hyper<P extends IProps>(type: string, getProps?: () => P) {
                 }
                 continue;
             }
-            if (key.toLowerCase() in element) {
+
+            if (key === "onClick" && key.toLowerCase() in element) {
                 Reflect.set(element, key.toLowerCase(), props[key]);
                 continue;
             }
@@ -61,6 +80,8 @@ export function hyper<P extends IProps>(type: string, getProps?: () => P) {
             props?.children?.map((child) => {
                 if (child instanceof Element) {
                     return child;
+                } else if (child instanceof Function) {
+                    return document.createTextNode(child());
                 } else {
                     return document.createTextNode(child);
                 }
@@ -75,8 +96,6 @@ export function hyper<P extends IProps>(type: string, getProps?: () => P) {
 
     const update = () => {
         console.debug("[debug] hyper update");
-
-        props = getProps && getProps();
 
         props?.children?.forEach((value, index) => {
             if (
