@@ -98,10 +98,10 @@ export function hyper(
         console.debug("[debug] hyper update");
 
         props?.children?.forEach((value, index) => {
-            if (
-                !(children[index] instanceof Element) &&
-                typeof value == "string"
-            ) {
+            if (children[index] instanceof Text && value instanceof Function) {
+                children[index].nodeValue = value();
+            }
+            if (children[index] instanceof Text && typeof value === "string") {
                 children[index].nodeValue = value;
             }
         });
