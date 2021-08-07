@@ -8,18 +8,28 @@ interface IProps {
 
 type TypeFunc<P> = (props: P) => Element;
 
-export const hyperX = <T extends P, P = undefined>(
+export function hyperX<T extends P, P = undefined>(
     type: TypeFunc<P>,
     getProps?: () => T
-) => {
+): Element;
+
+export function hyperX<T extends P, P = undefined>(
+    type: TypeFunc<P>,
+    getProps?: () => T
+) {
     console.debug("[debug] hyperX start");
     const props = (getProps && getProps()) || ({} as P);
     const element = type(props);
     console.debug("[debug] hyperX end");
     return element;
-};
+}
 
-export const hyper = <P extends IProps>(type: string, getProps?: () => P) => {
+export function hyper<P extends IProps>(
+    type: string,
+    getProps?: () => P
+): Element;
+
+export function hyper<P extends IProps>(type: string, getProps?: () => P) {
     console.debug("[debug] hyper start");
     let element: Element | null = null;
 
@@ -91,4 +101,4 @@ export const hyper = <P extends IProps>(type: string, getProps?: () => P) => {
     });
 
     return element!;
-};
+}
