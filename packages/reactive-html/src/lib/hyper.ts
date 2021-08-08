@@ -9,59 +9,35 @@ interface IProps {
 
 type TypeFunc<P> = (props: P) => Element;
 
-const proxyHandler = <T extends {}>(
-    proxyKeys: (string | symbol)[]
-): ProxyHandler<T> => ({
-    get(target, p, reciver) {
-        if (proxyKeys.includes(p)) {
-            return Reflect.get(target, p, reciver)();
-        } else {
-            return Reflect.get(target, p, reciver);
-        }
-    },
-});
-
 export function hyperX<T extends P, P = undefined>(
     type: TypeFunc<P>,
     config?: T,
     proxyKeys?: (string | symbol)[]
 ): Element;
 
-export function hyperX(
-    type: TypeFunc<{}>,
-    config: {} = {},
-    proxyKeys: (string | symbol)[] = []
-) {
+export function hyperX(type: TypeFunc<{}>, config: {} = {}) {
     console.debug("[debug] hyperX start");
-    const props = new Proxy(config, proxyHandler(proxyKeys));
-    const element = type(props);
+    const element = type(config);
     console.debug("[debug] hyperX end");
     return element;
 }
 
-export function hyper<P extends IProps>(
-    type: string,
-    config?: P,
-    proxyKeys?: (string | symbol)[]
-): Element;
+export function hyper<P extends IProps>(type: string, config?: P): Element;
 
-export function hyper(
-    type: string,
-    config: {} = {},
-    proxyKeys: (string | symbol)[] = []
-) {
+export function hyper(type: string, config: {} = {}) {
     console.debug("[debug] hyper start");
     let element: Element | null = null;
 
     let inited = false;
-    const props = new Proxy<IProps>(config, proxyHandler(proxyKeys));
     let children: (Text | Element)[] = [];
+
+    const props: any = config;
 
     const create = () => {
         console.debug("[debug] hyper create");
         element = document.createElement(type);
 
-        for (const key in props) {
+        for (const key in config) {
             // assign props to element if key in element. onClick -> onclick
             if (key === "style" && element instanceof HTMLElement) {
                 for (const styleKey in props[key]) {
@@ -77,11 +53,9 @@ export function hyper(
         }
 
         children =
-            props?.children?.map((child) => {
+            props?.children?.map((child: any) => {
                 if (child instanceof Element) {
                     return child;
-                } else if (child instanceof Function) {
-                    return document.createTextNode(child());
                 } else {
                     return document.createTextNode(child);
                 }
@@ -97,7 +71,7 @@ export function hyper(
     const update = () => {
         console.debug("[debug] hyper update");
 
-        props?.children?.forEach((value, index) => {
+        props?.children?.forEach((value: any, index: number) => {
             if (children[index] instanceof Text && value instanceof Function) {
                 children[index].nodeValue = value();
             }
