@@ -10,13 +10,13 @@ interface IProps {
 
 type TypeFunc<P> = (props: P) => Element;
 
-export function hyperX<T extends P, P = undefined>(
-    type: TypeFunc<P>,
-    config?: T,
-    proxyKeys?: (string | symbol)[]
-): Element;
+// export function hyperX<T extends P, P = undefined>(
+//     type: TypeFunc<P>,
+//     config?: T,
+//     proxyKeys?: (string | symbol)[]
+// ): Element;
 
-export function hyperX(type: TypeFunc<{}>, config: {} = {}) {
+export function hyperX(type: TypeFunc<any>, config: any = {}) {
     console.debug("[debug] hyperX start");
     const element = type(config);
     console.debug("[debug] hyperX end");

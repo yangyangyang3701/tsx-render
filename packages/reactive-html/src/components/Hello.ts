@@ -24,14 +24,30 @@ const Hello = () => {
             [
                 "hello ",
                 name,
-                hyperX((props: {}) =>
-                    hyper("button", {
-                        children: ["change"],
-                        onClick: change,
-                        style: {
-                            marginLeft: "10px",
+                hyper("button", {
+                    children: proxify(["change", name], ["1"]),
+                    onClick: change,
+                    style: {
+                        marginLeft: "10px",
+                    },
+                }),
+                hyperX(
+                    (props: { name: string }) => {
+                        const { name } = props;
+                        return hyper("button", {
+                            children: proxify(["change", name], ["1"]),
+                            onClick: change,
+                            style: {
+                                marginLeft: "10px",
+                            },
+                        });
+                    },
+                    proxify(
+                        {
+                            name: name,
                         },
-                    })
+                        ["name"]
+                    )
                 ),
             ],
             ["1"]
