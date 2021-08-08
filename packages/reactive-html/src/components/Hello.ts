@@ -6,15 +6,11 @@ const Hello = () => {
     const [name, setName] = createSignal<string>("world");
     const [color, setColor] = createSignal<string>("red");
 
-    const changeName = () => {
+    const change = () => {
         console.debug("[debug] change name");
         const randomNum = Math.random();
-        setName(randomNum.toFixed(2).toString());
-    };
-
-    const changeColor = () => {
-        console.debug("[debug] change color");
-        const randomNum = Math.random();
+        const name = randomNum.toFixed(2).toString();
+        setName(name);
         if (randomNum > 0.5) {
             setColor("blue");
         } else {
@@ -28,24 +24,10 @@ const Hello = () => {
             [
                 "hello ",
                 name,
-                hyper("button", {
-                    children: ["change name"],
-                    onClick: changeName,
-                    style: {
-                        marginLeft: "10px",
-                    },
-                }),
-                hyper("button", {
-                    children: ["change color"],
-                    onClick: changeColor,
-                    style: {
-                        marginLeft: "10px",
-                    },
-                }),
                 hyperX((props: {}) =>
                     hyper("button", {
-                        children: ["change color"],
-                        onClick: changeColor,
+                        children: ["change"],
+                        onClick: change,
                         style: {
                             marginLeft: "10px",
                         },

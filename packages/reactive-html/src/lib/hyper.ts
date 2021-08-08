@@ -1,10 +1,11 @@
 import { createEffect, createRoot } from "@idealjs/corn";
-import { ReadFunction } from "../../../corn-reactive";
+import CSS from "csstype";
+import { ReadFunction } from "@idealjs/corn-reactive";
 
 interface IProps {
     children?: (string | Element | ReadFunction<any>)[];
     onClick?: any;
-    style?: any;
+    style?: CSS.Properties;
 }
 
 type TypeFunc<P> = (props: P) => Element;
@@ -37,7 +38,7 @@ export function hyper(type: string, config: {} = {}) {
         console.debug("[debug] hyper create");
         element = document.createElement(type);
 
-        for (const key in config) {
+        for (const key in props) {
             // assign props to element if key in element. onClick -> onclick
             if (key === "style" && element instanceof HTMLElement) {
                 for (const styleKey in props[key]) {
@@ -70,6 +71,16 @@ export function hyper(type: string, config: {} = {}) {
 
     const update = () => {
         console.debug("[debug] hyper update");
+
+        for (const key in props) {
+            // assign props to element if key in element. onClick -> onclick
+            if (key === "style" && element instanceof HTMLElement) {
+                for (const styleKey in props[key]) {
+                    Reflect.set(element.style, styleKey, props[key][styleKey]);
+                }
+                continue;
+            }
+        }
 
         props?.children?.forEach((value: any, index: number) => {
             if (children[index] instanceof Text && value instanceof Function) {
