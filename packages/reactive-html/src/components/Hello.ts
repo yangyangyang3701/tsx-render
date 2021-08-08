@@ -33,21 +33,17 @@ const Hello = () => {
                 }),
                 hyperX(
                     (props: { name: string }) => {
-                        const { name } = props;
                         return hyper("button", {
-                            children: proxify(["change", name], ["1"]),
+                            children: proxify(["change", props.name], ["1"]),
                             onClick: change,
                             style: {
                                 marginLeft: "10px",
                             },
                         });
                     },
-                    proxify(
-                        {
-                            name: name,
-                        },
-                        ["name"]
-                    )
+                    {
+                        name: name,
+                    }
                 ),
             ],
             ["1"]
