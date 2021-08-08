@@ -61,36 +61,20 @@ class Reactive {
         this.roots.pop();
     };
 
-    public createSignal<T>(): [
-        ReadFunction<T | undefined>,
-        WriteFunction<T | undefined>
-    ];
+    public createSignal<T>(): { value: T | undefined };
 
-    public createSignal<T>(value: T): [ReadFunction<T>, WriteFunction<T>];
+    public createSignal<T>(value: T): { value: T };
 
-    public createSignal<T>(
-        value?: T
-    ): [ReadFunction<typeof value>, WriteFunction<typeof value>] {
+    public createSignal<T>(value?: T) {
         const root = this.roots[this.roots.length - 1];
         const effects = new Set<Effect>();
 
-        const proxy = new Proxy<{ value: typeof value }>(
+        const proxy = new Proxy<{ value: T | undefined }>(
             { value },
             Reactive.handler(effects, root)
         );
 
-        const read: ReadFunction<typeof value> = () => {
-            return proxy.value;
-        };
-
-        const write: WriteFunction<typeof value> = (nextValue) => {
-            if (isSetFunction(nextValue)) {
-                proxy.value = value = nextValue(value);
-            } else {
-                proxy.value = value = nextValue;
-            }
-        };
-        return [read, write];
+        return proxy;
     }
 
     public createEffect = (fn: () => void) => {

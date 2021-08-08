@@ -4,27 +4,27 @@ describe("basic test", () => {
     test("test 1", () => {
         const reactive = new Reactive();
         reactive.createRoot(() => {
-            const [name, setName] = reactive.createSignal<string>();
-            const [result, setResult] = reactive.createSignal<
-                string | undefined
-            >(name());
+            const name = reactive.createSignal<string>();
+            const result = reactive.createSignal<string | undefined>(
+                name.value
+            );
             let count = 0;
 
             reactive.createEffect(() => {
-                setResult(name());
+                result.value = name.value;
                 count = count + 1;
             });
 
             expect(count).toBe(1);
 
             let name1 = "world";
-            setName(name1);
-            expect(result()).toBe(name1);
+            name.value = name1;
+            expect(result.value).toBe(name1);
             expect(count).toBe(2);
 
             let name2 = "world world";
-            setName(name2);
-            expect(result()).toBe(name2);
+            name.value = name2;
+            expect(result.value).toBe(name2);
             expect(count).toBe(3);
         });
     });
@@ -34,30 +34,34 @@ describe("object test", () => {
     test("test 1", () => {
         const reactive = new Reactive();
         reactive.createRoot(() => {
-            const [user, setUser] = reactive.createSignal<{ name: string }>();
-            const [result, setResult] = reactive.createSignal<
-                { name: string } | undefined
-            >(user());
+            const user = reactive.createSignal<{ name: string }>();
+            const result = reactive.createSignal<{ name: string } | undefined>(
+                user.value
+            );
             let count = 0;
 
             reactive.createEffect(() => {
-                setResult(user());
+                result.value = user.value;
                 count = count + 1;
             });
             expect(count).toBe(1);
 
             let name1 = "world";
-            setUser(() => ({
+            let user1 = {
                 name: name1,
-            }));
+            };
+            user.value = user1;
             expect(count).toBe(2);
-            expect(user()?.name).toBe(name1);
-            expect(result()?.name).toBe(name1);
+            expect(user.value?.name).toBe(user1.name);
+            expect(result.value?.name).toBe(name1);
 
             let name2 = "world world";
-            setUser({ name: name2 });
+            let user2 = {
+                name: name2,
+            };
+            user.value = user2;
             expect(count).toBe(3);
-            expect(result()?.name).toBe(name2);
+            expect(result.value?.name).toBe(user2.name);
         });
     });
 });
@@ -66,14 +70,14 @@ describe("batch test", () => {
     test("test 1", () => {
         const reactive = new Reactive();
         reactive.createRoot(() => {
-            const [name, setName] = reactive.createSignal<string>();
-            const [result, setResult] = reactive.createSignal<
-                string | undefined
-            >(name());
+            const name = reactive.createSignal<string>();
+            const result = reactive.createSignal<string | undefined>(
+                name.value
+            );
             let count = 0;
 
             reactive.createEffect(() => {
-                setResult(name());
+                result.value = name.value;
                 count = count + 1;
             });
 
@@ -83,11 +87,11 @@ describe("batch test", () => {
             let name2 = "world world";
 
             reactive.batch(() => {
-                setName(name1);
-                setName(name2);
+                name.value = name1;
+                name.value = name2;
             });
 
-            expect(result()).toBe(name2);
+            expect(result.value).toBe(name2);
             expect(count).toBe(2);
         });
     });
@@ -97,13 +101,13 @@ describe("nest test", () => {
     test("test 1", () => {
         const reactive = new Reactive();
         reactive.createRoot(() => {
-            const [name, setName] = reactive.createSignal<string>();
+            const name = reactive.createSignal<string>();
             let count = 0;
 
             reactive.createEffect(() => {
-                name();
+                name.value;
                 reactive.createEffect(() => {
-                    name();
+                    name.value;
                     count = count + 1;
                 });
             });
@@ -111,11 +115,11 @@ describe("nest test", () => {
             expect(count).toBe(1);
 
             let name1 = "world";
-            setName(name1);
+            name.value = name1;
             expect(count).toBe(3);
 
             let name2 = "world world";
-            setName(name2);
+            name.value = name2;
             expect(count).toBe(6);
         });
     });
@@ -123,14 +127,14 @@ describe("nest test", () => {
     test("test 2", () => {
         const reactive = new Reactive();
         reactive.createRoot(() => {
-            const [name, setName] = reactive.createSignal<string>();
+            const name = reactive.createSignal<string>();
             let count = 0;
 
             reactive.createEffect(() => {
-                name();
+                console.debug("[debug]", name.value);
                 reactive.createRoot(() => {
                     reactive.createEffect(() => {
-                        name();
+                        console.debug("[debug]", name.value);
                         count = count + 1;
                     });
                 });
@@ -139,11 +143,11 @@ describe("nest test", () => {
             expect(count).toBe(1);
 
             let name1 = "world";
-            setName(name1);
+            name.value = name1;
             expect(count).toBe(2);
 
             let name2 = "world world";
-            setName(name2);
+            name.value = name2;
             expect(count).toBe(3);
         });
     });
