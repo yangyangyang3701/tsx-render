@@ -83,9 +83,6 @@ export function hyper(type: string, config: {} = {}) {
         }
 
         props?.children?.forEach((value: any, index: number) => {
-            if (children[index] instanceof Text && value instanceof Function) {
-                children[index].nodeValue = value();
-            }
             if (children[index] instanceof Text && typeof value === "string") {
                 children[index].nodeValue = value;
             }
