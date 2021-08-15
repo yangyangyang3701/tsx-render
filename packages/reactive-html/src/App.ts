@@ -1,4 +1,4 @@
-import { createEffect, createSignal } from "../../corn";
+import { createEffect, createRoot, createSignal } from "../../corn";
 import { hyper } from "./lib/hyper";
 
 const App = () => {
@@ -11,6 +11,7 @@ const App = () => {
         const randomNum = Math.random();
         const name = randomNum.toFixed(2).toString();
         setName(name);
+        setTodos((todos) => [...todos, name]);
         if (randomNum > 0.5) {
             setColor("blue");
         } else {
@@ -47,10 +48,59 @@ const App = () => {
                 );
             },
             (el: Element) => {
-                let arrayA = [];
+                let arrayA: { el: Node; item: string }[] = [];
                 createEffect(() => {
                     let arrayB = todos();
-                    
+                    let tmp: Array<(el: Element) => void> = [];
+                    //compare arrayA and arrayB;
+                    for (let i = 0; i < arrayA.length; i++) {
+                        for (let j = 0; j < arrayB.length; j++) {
+                            if (arrayA[i].item === arrayB[j]) {
+                                tmp.push(
+                                    ...arrayB.splice(0, j).map((it) => {
+                                        return (el: Element) => {
+                                            el.append(
+                                                hyper("div", {
+                                                    children: [
+                                                        (el: Element) => {
+                                                            el.textContent = it;
+                                                        },
+                                                    ],
+                                                })
+                                            );
+                                        };
+                                    })
+                                );
+                                arrayA.shift();
+                                arrayB.shift();
+                            }
+                        }
+
+                        tmp.push((el: Element) => {
+                            const elA = arrayA.shift()?.el;
+                            elA && el.removeChild(elA);
+                        });
+                    }
+                    tmp.push(
+                        ...arrayB.map((it) => {
+                            return (el: Element) => {
+                                el.append(
+                                    hyper("div", {
+                                        children: [
+                                            (el: Element) => {
+                                                el.textContent = it;
+                                            },
+                                        ],
+                                    })
+                                );
+                            };
+                        })
+                    );
+                    createRoot(() => {
+                        tmp.forEach((t) => {
+                            t(el);
+                        });
+                    });
                 });
             },
         ],
