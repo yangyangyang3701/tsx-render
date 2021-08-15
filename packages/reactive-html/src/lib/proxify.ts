@@ -1,6 +1,5 @@
 const handler = <T extends Object>(proxyKeys: (string | symbol)[]) => ({
     get(target: T, p: string | symbol, reciver: any) {
-        console.log(target, p, (target as any)[p]);
         if (proxyKeys.includes(p) && (target as any)[p] instanceof Function) {
             return Reflect.get(target, p, reciver)();
         }

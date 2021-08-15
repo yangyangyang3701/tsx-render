@@ -4,6 +4,7 @@ import { hyper } from "./lib/hyper";
 const App = () => {
     const [name, setName] = createSignal<string>("world");
     const [color, setColor] = createSignal<string>("red");
+    const [todos, setTodos] = createSignal<string[]>([]);
 
     const change = () => {
         console.debug("[debug] change name");
@@ -44,6 +45,13 @@ const App = () => {
                         },
                     })
                 );
+            },
+            (el: Element) => {
+                let arrayA = [];
+                createEffect(() => {
+                    let arrayB = todos();
+                    
+                });
             },
         ],
         style: (el: HTMLElement) => {
