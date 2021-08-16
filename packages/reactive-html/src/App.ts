@@ -11,10 +11,11 @@ const App = () => {
         const randomNum = Math.random();
         const name = randomNum.toFixed(2).toString();
         setName(name);
-        setTodos((todos) => [...todos, name]);
         if (randomNum > 0.5) {
+            setTodos((todos) => [...todos, name]);
             setColor("blue");
         } else {
+            setTodos((todos) => todos.slice(1));
             setColor("red");
         }
     };
@@ -59,15 +60,14 @@ const App = () => {
                                 tmp.push(
                                     ...arrayB.splice(0, j).map((it) => {
                                         return (el: Element) => {
-                                            el.append(
-                                                hyper("div", {
-                                                    children: [
-                                                        (el: Element) => {
-                                                            el.textContent = it;
-                                                        },
-                                                    ],
-                                                })
-                                            );
+                                            const child = hyper("div", {
+                                                children: [
+                                                    (el: Element) => {
+                                                        el.textContent = it;
+                                                    },
+                                                ],
+                                            });
+                                            el.append(child);
                                         };
                                     })
                                 );
@@ -84,15 +84,15 @@ const App = () => {
                     tmp.push(
                         ...arrayB.map((it) => {
                             return (el: Element) => {
-                                el.append(
-                                    hyper("div", {
-                                        children: [
-                                            (el: Element) => {
-                                                el.textContent = it;
-                                            },
-                                        ],
-                                    })
-                                );
+                                const child = hyper("div", {
+                                    children: [
+                                        (el: Element) => {
+                                            el.textContent = it;
+                                        },
+                                    ],
+                                });
+                                el.append(child);
+                                arrayA.push({ el: child, item: it });
                             };
                         })
                     );
