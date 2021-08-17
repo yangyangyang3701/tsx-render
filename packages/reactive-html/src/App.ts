@@ -11,11 +11,17 @@ const App = () => {
         const randomNum = Math.random();
         const name = randomNum.toFixed(2).toString();
         setName(name);
-        if (randomNum > 0.5) {
-            setTodos((todos) => [...todos, name]);
+        setTodos((todos) => {
+            if (todos.length > 10) {
+                return [];
+            } else {
+                console.log("set todos", todos);
+                return [...todos, name];
+            }
+        });
+        if (randomNum > 0.7) {
             setColor("blue");
         } else {
-            setTodos((todos) => todos.slice(1));
             setColor("red");
         }
     };
@@ -52,6 +58,7 @@ const App = () => {
                 let arrayA: { el: Node; item: string }[] = [];
                 createEffect(() => {
                     let arrayB = todos();
+                    console.log("arrayB", todos());
                     let tmp: Array<(el: Element) => void> = [];
                     //compare arrayA and arrayB;
                     for (let i = 0; i < arrayA.length; i++) {
@@ -71,15 +78,14 @@ const App = () => {
                                         };
                                     })
                                 );
-                                arrayA.shift();
                                 arrayB.shift();
+                            } else if (j === arrayB.length - 1) {
+                                tmp.push((el: Element) => {
+                                    const elA = arrayA.shift()?.el;
+                                    elA && el.removeChild(elA);
+                                });
                             }
                         }
-
-                        tmp.push((el: Element) => {
-                            const elA = arrayA.shift()?.el;
-                            elA && el.removeChild(elA);
-                        });
                     }
                     tmp.push(
                         ...arrayB.map((it) => {
