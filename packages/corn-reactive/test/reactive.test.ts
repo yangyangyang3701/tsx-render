@@ -1,6 +1,6 @@
 import Reactive from "../src/Reactive";
 
-describe("basic test", () => {
+describe("createSignal test", () => {
     test("test 1", () => {
         const reactive = new Reactive();
         reactive.createRoot(() => {
@@ -66,6 +66,48 @@ describe("basic test", () => {
                 });
             }
             expect(todos()).toEqual(result);
+        });
+    });
+});
+
+describe("createEffect test", () => {
+    test("test 1", () => {
+        const reactive = new Reactive();
+        reactive.createRoot(() => {
+            const [name, setName] = reactive.createSignal<string>();
+            const [result, setResult] = reactive.createSignal<
+                string | undefined
+            >(name());
+            let count = 0;
+
+            reactive.createEffect((prev: number = 0) => {
+                setResult(name());
+                expect(prev).toBe(count);
+                count = count + 1;
+                return prev + 1;
+            });
+
+            expect(count).toBe(1);
+
+            let name1 = "name1";
+            setName(name1);
+            expect(result()).toBe(name1);
+            expect(count).toBe(2);
+
+            let name2 = "name2";
+            setName(name2);
+            expect(result()).toBe(name2);
+            expect(count).toBe(3);
+
+            let name3 = "name3";
+            setName(name3);
+            expect(result()).toBe(name3);
+            expect(count).toBe(4);
+
+            let name4 = "name4";
+            setName(name4);
+            expect(result()).toBe(name4);
+            expect(count).toBe(5);
         });
     });
 });

@@ -56,6 +56,7 @@ const App = () => {
             },
             (el: Element) => {
                 let arrayA: { el: Node; item: string }[] = [];
+
                 createEffect(() => {
                     let arrayB = [...todos()];
 
