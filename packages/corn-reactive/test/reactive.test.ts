@@ -28,6 +28,46 @@ describe("basic test", () => {
             expect(count).toBe(3);
         });
     });
+    test("test 2", () => {
+        const reactive = new Reactive();
+        reactive.createRoot(() => {
+            const [todos, setTodos] = reactive.createSignal<string[]>([]);
+            const result: string[] = [];
+            {
+                const todo = Math.random().toFixed(2);
+                result.push(todo);
+                setTodos((todos) => {
+                    console.log("test test", todos);
+                    return [...todos, todo];
+                });
+            }
+            {
+                const todo = Math.random().toFixed(2);
+                result.push(todo);
+                setTodos((todos) => {
+                    console.log("test test", todos);
+                    return [...todos, todo];
+                });
+            }
+            {
+                const todo = Math.random().toFixed(2);
+                result.push(todo);
+                setTodos((todos) => {
+                    console.log("test test", todos);
+                    return [...todos, todo];
+                });
+            }
+            {
+                const todo = Math.random().toFixed(2);
+                result.push(todo);
+                setTodos((todos) => {
+                    console.log("test test", todos);
+                    return [...todos, todo];
+                });
+            }
+            expect(todos()).toEqual(result);
+        });
+    });
 });
 
 describe("object test", () => {
