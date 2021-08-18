@@ -1,11 +1,14 @@
 export type ReadFunction<T> = () => T;
 export type WriteFunction<T> = (next: T | ((preValue: T) => T)) => void;
-type Effect = () => void;
+interface IEffect<T = any> {
+    fn: (prev: T) => T;
+    prev?: T;
+}
 interface IRoot {
-    effects: Effect[];
+    effects: IEffect[];
     batch: {
         pending: boolean;
-        effects: Set<Effect>;
+        effects: Set<IEffect>;
     };
 }
 
@@ -19,7 +22,7 @@ class Reactive {
     constructor() {
         this.createSignal = this.createSignal.bind(this);
     }
-    private static handler = (effects: Set<Effect>, root: IRoot) => ({
+    private static handler = (effects: Set<IEffect>, root: IRoot) => ({
         get(target: object, p: string | symbol, receiver: any) {
             const effect = root.effects[root.effects.length - 1];
             if (effect != null) {
@@ -39,7 +42,7 @@ class Reactive {
                 if (root.batch.pending) {
                     root.batch.effects.add(effect);
                 } else {
-                    effect();
+                    effect.prev = effect.fn(effect.prev);
                 }
                 root.effects.pop();
             }
@@ -53,7 +56,7 @@ class Reactive {
             effects: [],
             batch: {
                 pending: false,
-                effects: new Set<Effect>(),
+                effects: new Set<IEffect>(),
             },
         };
         this.roots.push(root);
@@ -72,7 +75,7 @@ class Reactive {
         value?: T
     ): [ReadFunction<typeof value>, WriteFunction<typeof value>] {
         const root = this.roots[this.roots.length - 1];
-        const effects = new Set<Effect>();
+        const effects = new Set<IEffect>();
 
         const proxy = new Proxy<{ value: typeof value }>(
             { value },
@@ -93,11 +96,14 @@ class Reactive {
         return [read, write];
     }
 
-    public createEffect = (fn: () => void) => {
+    public createEffect = <T>(fn: (pre?: T) => T) => {
         console.debug("[debug] create effect");
         const root = this.roots[this.roots.length - 1];
-        root.effects.push(fn);
-        fn();
+        const effect: IEffect = {
+            fn,
+        };
+        root.effects.push(effect);
+        effect.prev = fn();
         root.effects.pop();
     };
 
@@ -106,7 +112,9 @@ class Reactive {
         root.batch.pending = true;
         fn();
         root.batch.pending = false;
-        root.batch.effects.forEach((effect) => effect());
+        root.batch.effects.forEach((effect) => {
+            effect.prev = effect.fn(effect.prev);
+        });
         root.batch.effects.clear();
     };
 }
