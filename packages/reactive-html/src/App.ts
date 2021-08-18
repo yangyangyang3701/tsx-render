@@ -15,7 +15,7 @@ const App = () => {
             if (todos.length > 10) {
                 return [];
             } else {
-                console.log("set todos", todos);
+                console.log("set todos", todos, [...todos, name]);
                 return [...todos, name];
             }
         });
@@ -57,8 +57,8 @@ const App = () => {
             (el: Element) => {
                 let arrayA: { el: Node; item: string }[] = [];
                 createEffect(() => {
-                    let arrayB = todos();
-                    console.log("arrayB", todos());
+                    let arrayB = [...todos()];
+
                     let tmp: Array<(el: Element) => void> = [];
                     //compare arrayA and arrayB;
                     for (let i = 0; i < arrayA.length; i++) {
