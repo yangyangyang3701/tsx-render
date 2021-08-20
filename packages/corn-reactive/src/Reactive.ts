@@ -12,8 +12,16 @@ interface IRoot {
     };
 }
 
+interface IDiffFlag {
+    $flag: any;
+}
+
+type DiffType<T> = T extends object ? T & IDiffFlag : { value: T } & IDiffFlag;
+
+type ExtractArray<T> = T extends Array<infer C> ? C : any;
+
 const isSetFunction = <T>(v: T | ((d: T) => T)): v is (d: T) => T => {
-    return typeof v === "function";
+    return v instanceof Function;
 };
 
 //Publish–subscribe pattern
@@ -50,6 +58,48 @@ class Reactive {
         },
     });
 
+    private static diffHandler = <T>(
+        effects: Set<IEffect>,
+        root: IRoot,
+        compare: (p: ExtractArray<T>, n: ExtractArray<T>) => boolean
+    ) => {
+        const prev = [];
+        return {
+            get(
+                target: { value: T[] | undefined },
+                p: string | symbol,
+                receiver: any
+            ): Array<T & { flag: any }> | undefined {
+                const effect = root.effects[root.effects.length - 1];
+                if (effect != null) {
+                    effects.add(effect);
+                }
+                if (target == null) {
+                    return undefined;
+                }
+                return Reflect.get(target, p, receiver);
+            },
+            set: (
+                target: { value: T[] },
+                p: string | symbol,
+                value: T[],
+                receiver: any
+            ) => {
+                Reflect.set(target, p, value, receiver);
+                for (const effect of [...effects]) {
+                    root.effects.push(effect);
+                    if (root.batch.pending) {
+                        root.batch.effects.add(effect);
+                    } else {
+                        effect.prev = effect.fn(effect.prev);
+                    }
+                    root.effects.pop();
+                }
+                return true;
+            },
+        };
+    };
+
     public createRoot = (fn: () => void) => {
         console.debug("[debug] createRoot");
         const root: IRoot = {
@@ -84,6 +134,48 @@ class Reactive {
 
         const read: ReadFunction<typeof value> = () => {
             return proxy.value;
+        };
+
+        const write: WriteFunction<typeof value> = (nextValue) => {
+            if (isSetFunction(nextValue)) {
+                proxy.value = value = nextValue(value);
+            } else {
+                proxy.value = value = nextValue;
+            }
+        };
+        return [read, write];
+    }
+
+    public createDiffSignal<T extends any[]>(): [
+        ReadFunction<DiffType<ExtractArray<T>>[] | undefined>,
+        WriteFunction<T | undefined>
+    ];
+
+    public createDiffSignal<T extends any[]>(
+        value: T
+    ): [
+        ReadFunction<DiffType<ExtractArray<typeof value>>[]>,
+        WriteFunction<typeof value>
+    ];
+
+    public createDiffSignal<T extends any[]>(
+        value?: T,
+        compare: (p: ExtractArray<T>, n: ExtractArray<T>) => boolean = (p, n) =>
+            p === n
+    ): [
+        ReadFunction<DiffType<ExtractArray<typeof value>>[]>,
+        WriteFunction<typeof value>
+    ] {
+        const root = this.roots[this.roots.length - 1];
+        const effects = new Set<IEffect>();
+
+        const proxy = new Proxy(
+            { value },
+            Reactive.diffHandler<T>(effects, root, compare)
+        );
+
+        const read: ReadFunction<DiffType<T>[]> = () => {
+            return proxy.value as DiffType<T>[];
         };
 
         const write: WriteFunction<typeof value> = (nextValue) => {
