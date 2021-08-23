@@ -1,3 +1,6 @@
+import reconcile from "./reconcile";
+import { Compare, WithFlag, ExtractArray, FLAG } from "./type";
+
 export type ReadFunction<T> = () => T;
 export type WriteFunction<T> = (next: T | ((preValue: T) => T)) => void;
 interface IEffect<T = any> {
@@ -11,14 +14,6 @@ interface IRoot {
         effects: Set<IEffect>;
     };
 }
-
-interface IDiffFlag {
-    $flag: any;
-}
-
-type DiffType<T> = T extends object ? T & IDiffFlag : { value: T } & IDiffFlag;
-
-type ExtractArray<T> = T extends Array<infer C> ? C : any;
 
 const isSetFunction = <T>(v: T | ((d: T) => T)): v is (d: T) => T => {
     return v instanceof Function;
@@ -61,31 +56,34 @@ class Reactive {
     private static diffHandler = <T>(
         effects: Set<IEffect>,
         root: IRoot,
-        compare: (p: ExtractArray<T>, n: ExtractArray<T>) => boolean
+        compare: Compare<WithFlag<T>>
     ) => {
-        const prev = [];
         return {
             get(
-                target: { value: T[] | undefined },
+                target: { value: WithFlag<T>[] | undefined },
                 p: string | symbol,
                 receiver: any
-            ): Array<T & { flag: any }> | undefined {
+            ): WithFlag<T>[] | undefined {
                 const effect = root.effects[root.effects.length - 1];
                 if (effect != null) {
                     effects.add(effect);
                 }
-                if (target == null) {
-                    return undefined;
-                }
                 return Reflect.get(target, p, receiver);
             },
             set: (
-                target: { value: T[] },
+                target: { value: WithFlag<T>[] },
                 p: string | symbol,
-                value: T[],
+                value: WithFlag<T>[],
                 receiver: any
             ) => {
-                Reflect.set(target, p, value, receiver);
+                const prev: WithFlag<T>[] = (
+                    Reflect.get(target, p, receiver) as WithFlag<T>[]
+                )
+                    .filter((p) => p.$flag === FLAG.REMOVED)
+                    .map((p) => ({ ...p, $flag: FLAG.NORMAL }));
+
+                const next = reconcile(prev, value, compare);
+                Reflect.set(target, p, next, receiver);
                 for (const effect of [...effects]) {
                     root.effects.push(effect);
                     if (root.batch.pending) {
@@ -146,39 +144,38 @@ class Reactive {
         return [read, write];
     }
 
-    public createDiffSignal<T extends any[]>(): [
-        ReadFunction<DiffType<ExtractArray<T>>[] | undefined>,
-        WriteFunction<T | undefined>
+    public createDiffSignal<
+        TA extends WithFlag<any>[],
+        T = ExtractArray<TA>
+    >(): [
+        ReadFunction<WithFlag<T>[] | undefined>,
+        WriteFunction<WithFlag<T>[] | undefined>
     ];
 
-    public createDiffSignal<T extends any[]>(
-        value: T
-    ): [
-        ReadFunction<DiffType<ExtractArray<typeof value>>[]>,
-        WriteFunction<typeof value>
-    ];
+    public createDiffSignal<TA extends WithFlag<any>[], T = ExtractArray<TA>>(
+        value: TA
+    ): [ReadFunction<typeof value>, WriteFunction<typeof value>];
 
-    public createDiffSignal<T extends any[]>(
-        value?: T,
-        compare: (p: ExtractArray<T>, n: ExtractArray<T>) => boolean = (p, n) =>
-            p === n
+    public createDiffSignal<TA extends WithFlag<any>[], T = ExtractArray<TA>>(
+        value?: WithFlag<T>[] | undefined,
+        compare: Compare<WithFlag<T>> = (p, n) => p.data === n.data
     ): [
-        ReadFunction<DiffType<ExtractArray<typeof value>>[]>,
-        WriteFunction<typeof value>
+        ReadFunction<WithFlag<T>[] | undefined>,
+        WriteFunction<WithFlag<T>[] | undefined>
     ] {
         const root = this.roots[this.roots.length - 1];
         const effects = new Set<IEffect>();
 
-        const proxy = new Proxy(
+        const proxy = new Proxy<{ value: WithFlag<T>[] | undefined }>(
             { value },
-            Reactive.diffHandler<T>(effects, root, compare)
+            Reactive.diffHandler(effects, root, compare)
         );
 
-        const read: ReadFunction<DiffType<T>[]> = () => {
-            return proxy.value as DiffType<T>[];
+        const read: ReadFunction<WithFlag<T>[] | undefined> = () => {
+            return proxy.value;
         };
 
-        const write: WriteFunction<typeof value> = (nextValue) => {
+        const write: WriteFunction<WithFlag<T>[] | undefined> = (nextValue) => {
             if (isSetFunction(nextValue)) {
                 proxy.value = value = nextValue(value);
             } else {
