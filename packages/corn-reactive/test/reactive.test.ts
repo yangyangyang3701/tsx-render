@@ -1,4 +1,5 @@
 import Reactive from "../src/Reactive";
+import { FLAG, WithFlag } from "../src/type";
 
 describe("createSignal test", () => {
     test("test 1", () => {
@@ -66,6 +67,36 @@ describe("createSignal test", () => {
                 });
             }
             expect(todos()).toEqual(result);
+        });
+    });
+    test("test 3", () => {
+        const reactive = new Reactive();
+        reactive.createRoot(() => {
+            const [todos, setTodos] = reactive.createDiffSignal<
+                WithFlag<string>[]
+            >([]);
+            let array: string[] = [];
+            reactive.createEffect(() => {
+                expect(todos().map((t) => t.data)).toEqual(array);
+            });
+
+            let data1 = Math.random().toFixed(2);
+            array = array.concat(data1);
+            setTodos((todos) => [...todos, { $flag: FLAG.NEW, data: data1 }]);
+
+            let data2 = Math.random().toFixed(2);
+            array = array.concat(data2);
+            setTodos((todos) => [...todos, { $flag: FLAG.NEW, data: data2 }]);
+
+            let data3 = Math.random().toFixed(2);
+            array = array.concat(data3);
+            setTodos((todos) => [...todos, { $flag: FLAG.NEW, data: data3 }]);
+
+            let data4 = Math.random().toFixed(2);
+            array = array.concat(data4);
+            setTodos((todos) => [...todos, { $flag: FLAG.NEW, data: data4 }]);
+
+            expect(todos().map((t) => t.data)).toEqual(array);
         });
     });
 });

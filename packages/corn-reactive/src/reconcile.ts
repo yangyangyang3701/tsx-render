@@ -1,4 +1,4 @@
-import { Compare, WithFlag } from "./type";
+import { Compare, FLAG, WithFlag } from "./type";
 
 const reconcile = <T>(
     p: WithFlag<T>[],
@@ -15,18 +15,25 @@ const reconcile = <T>(
         for (let nIndex = nStart; nIndex < n.length; nIndex++) {
             if (compare(p[pIndex], n[nIndex])) {
                 //found in next,set flat to normal
+                tmp = tmp
+                    .concat(n.slice(nStart, nIndex))
+                    .concat(n.slice(nIndex, nIndex + 1));
                 nStart = nIndex + 1;
+
                 break;
             } else if (nIndex === nEnd - 1) {
                 //not found in next,set flag to remove
+                tmp = tmp.concat({ ...p[pIndex], $flag: FLAG.REMOVED });
             }
         }
         if (nStart >= n.length) {
             //not item in n;
+            tmp = tmp.concat({ ...p[pIndex], $flag: FLAG.REMOVED });
         }
     }
-    if (nStart < n.length) {
+    if (nStart <= n.length) {
         //not item in p;
+        tmp = tmp.concat(n.slice(nStart, n.length));
     }
 
     return tmp;

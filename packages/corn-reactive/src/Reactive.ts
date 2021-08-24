@@ -177,7 +177,9 @@ class Reactive {
 
         const write: WriteFunction<WithFlag<T>[] | undefined> = (nextValue) => {
             if (isSetFunction(nextValue)) {
-                proxy.value = value = nextValue(value);
+                proxy.value = value = nextValue(
+                    value?.map((v) => ({ ...v, $flag: FLAG.NORMAL }))
+                );
             } else {
                 proxy.value = value = nextValue;
             }
