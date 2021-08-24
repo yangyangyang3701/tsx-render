@@ -1,4 +1,4 @@
-import { createEffect, createRoot, createSignal } from "../../corn";
+import { createEffect, createRoot, createSignal } from "@idealjs/corn";
 import { hyper } from "./lib/hyper";
 
 const App = () => {

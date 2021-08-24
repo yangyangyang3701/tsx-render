@@ -1,4 +1,4 @@
-import { createEffect } from "../../../corn";
+import { createEffect } from "@idealjs/corn";
 
 type Upsert = <E extends HTMLElement>(el: E) => void;
 

@@ -1,4 +1,4 @@
-import { createRoot } from "../../../packages/corn";
+import { createRoot } from "@idealjs/corn";
 import App from "./App";
 
 window.onload = () => {
