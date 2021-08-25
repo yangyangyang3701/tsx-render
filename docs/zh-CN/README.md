@@ -11,3 +11,11 @@ tsx-render 是一组实验室级别的库，目的是用于学习和研究。
 辅助仓库 `corn-reactive`。提供响应式 api。
 
 辅助仓库 `reactive-html`。使用 `corn` 中的 api 创建响应式的前端程序。
+
+# 快速开始
+```
+yarn
+yarn lerna bootstrap
+cd packages/reactive-html
+yarn start
+```
