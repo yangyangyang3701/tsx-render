@@ -24,6 +24,7 @@ class Reactive {
     private roots: IRoot[] = [];
     constructor() {
         this.createSignal = this.createSignal.bind(this);
+        this.createDiffSignal = this.createDiffSignal.bind(this);
     }
     private static handler = (effects: Set<IEffect>, root: IRoot) => ({
         get(target: object, p: string | symbol, receiver: any) {
@@ -79,10 +80,11 @@ class Reactive {
                 const prev: WithFlag<T>[] = (
                     Reflect.get(target, p, receiver) as WithFlag<T>[]
                 )
-                    .filter((p) => p.$flag === FLAG.REMOVED)
+                    .filter((p) => p.$flag !== FLAG.REMOVED)
                     .map((p) => ({ ...p, $flag: FLAG.NORMAL }));
 
                 const next = reconcile(prev, value, compare);
+
                 Reflect.set(target, p, next, receiver);
                 for (const effect of [...effects]) {
                     root.effects.push(effect);
