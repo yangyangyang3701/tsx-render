@@ -10,7 +10,7 @@ import { hyper } from "./lib/hyper";
 const App = () => {
     const [name, setName] = createSignal<string>("world");
     const [color, setColor] = createSignal<string>("red");
-    const [todos, setTodos] = createDiffSignal<WithFlag<string>[]>([]);
+    const [todos, setTodos] = createDiffSignal<WithFlag<Symbol>[]>([]);
 
     const change = () => {
         console.debug("[debug] change name");
@@ -21,7 +21,7 @@ const App = () => {
             if (todos.length > 10) {
                 return [];
             } else {
-                return [...todos, { data: name, $flag: FLAG.NEW }];
+                return [...todos, { data: Symbol(name), $flag: FLAG.NEW }];
             }
         });
         if (randomNum > 0.7) {
@@ -70,7 +70,8 @@ const App = () => {
                                 const child = hyper("div", {
                                     children: [
                                         (el: Element) =>
-                                            (el.textContent = withFT.data),
+                                            (el.textContent =
+                                                withFT.data.toString()),
                                     ],
                                 });
                                 el.append(child);
