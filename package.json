@@ -3,10 +3,12 @@
     "private": true,
     "workspaces": [
         "packages/*",
-        "examples/*"
+        "examples/*",
+        "fixtures/*"
     ],
     "version": "1.0.0",
     "scripts": {
+        "postinstall": "lerna bootstrap",
         "lerna": "lerna"
     },
     "license": "ISC",
