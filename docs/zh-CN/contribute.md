@@ -16,7 +16,7 @@ commit 以 `type(module): message` 为统一规范，其中 type、module、mess
 -   test：增加测试 case
 -   chore：构建过程或辅助工具的变动
 -   example: 示例修改
-
+-   fixture: fixture 包变动
 ## module
 
 指更新的模块，当前值为：
