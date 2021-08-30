@@ -17,17 +17,16 @@ commit 以 `type(module): message` 为统一规范，其中 type、module、mess
 -   chore：构建过程或辅助工具的变动
 -   example: 示例修改
 -   fixture: fixture 包变动
+
 ## module
 
 指更新的模块，当前值为：
 
--   gl(grape-layout)
--   lm(layout-manager)
--   dnd(drag-and-drop)
+-   暂无
 
 ## message
 
-message 是本次实际的提交信息，统一使用 `英文` 提交。
+message 是本次实际的提交信息，推荐使用 `英文` 提交。
 
 ## 例子
 
