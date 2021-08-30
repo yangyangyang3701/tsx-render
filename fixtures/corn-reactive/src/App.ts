@@ -4,7 +4,7 @@ import {
     createRoot,
     createSignal,
 } from "@idealjs/corn";
-import { FLAG, WithFlag } from "../../corn-reactive/src/type";
+import { FLAG, WithFlag } from "@idealjs/corn-reactive";
 import { hyper } from "./lib/hyper";
 
 const App = () => {
@@ -96,7 +96,6 @@ const App = () => {
                             entries.delete(withFT.data);
                         }
                     });
-
                 });
             },
         ],
