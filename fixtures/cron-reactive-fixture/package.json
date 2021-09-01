@@ -1,5 +1,5 @@
 {
-    "name": "cron-fixture-reactive",
+    "name": "cron-reactive-fixture",
     "version": "1.0.0",
     "main": "index.js",
     "license": "MIT",
