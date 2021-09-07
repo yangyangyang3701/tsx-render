@@ -9,8 +9,7 @@
         "esModuleInterop": true,
         "skipLibCheck": true,
         "forceConsistentCasingInFileNames": true,
-        "experimentalDecorators": true,
-        "emitDecoratorMetadata": true
+        "jsx": "preserve"
     },
-    "include": ["src"]
+    "include": ["src", "test"]
 }
