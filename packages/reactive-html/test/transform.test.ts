@@ -1,13 +1,13 @@
 import { transformSync } from "@babel/core";
-
-const HelloStory = `const Hello = () => {
-    return <div></div>;
-};
-
-export default Hello;
-`;
+import transform from "../src/transform";
 
 describe("transform", () => {
+    const HelloStory = `const Hello = () => {
+        return <div></div>;
+    };
+    
+    export default Hello;
+    `;
     test("syntax-jsx", () => {
         const result = transformSync(HelloStory, {
             plugins: ["@babel/plugin-syntax-jsx"],
@@ -16,6 +16,23 @@ describe("transform", () => {
         });
         expect(result?.code).toBe(
             `const Hello=()=>{return<div></div>;};export default Hello;`
+        );
+    });
+    test("transform-plugin-tag-ref", () => {
+        const HelloStory = `const Hello = () => {
+            return <div></div>;
+        };
+        
+        export default Hello;
+        `;
+        const result = transformSync(HelloStory, {
+            plugins: ["@babel/plugin-syntax-jsx", transform],
+            babelrc: false,
+            compact: true,
+        });
+        console.log(result?.code);
+        expect(result?.code).toBe(
+            `const Hello=()=>{return hyper("div");};export default Hello;`
         );
     });
 });
