@@ -17,46 +17,65 @@ createEffect(() => {
 inited = true;
 el.append(node);`);
 
-const TagRef = ["div"];
+const TagRef = new Set(["div", "p"]);
 
 function getTag(
     name: t.JSXIdentifier | t.JSXNamespacedName | t.JSXMemberExpression
 ): string {
     if (t.isJSXNamespacedName(name)) {
-        console.debug("[debug] isJSXNamespacedName", name);
+        // console.debug("[debug] isJSXNamespacedName", name);
         return name.name.name;
     }
 
     if (t.isJSXIdentifier(name)) {
-        console.debug("[debug] isJSXIdentifier", name);
+        // console.debug("[debug] isJSXIdentifier", name);
         return name.name;
     }
 
     if (t.isJSXMemberExpression(name)) {
-        console.debug("[debug] isJSXMemberExpression", name);
+        // console.debug("[debug] isJSXMemberExpression", name);
         return generate(name).code;
     }
 
     throw new Error(`Can't get from ${name}`);
 }
 
+// function convertJSXIdentifier(node,parent){
+
+// }
+
 export default declare((api, options, dirname) => {
     return {
         visitor: {
-            JSXElement: (path) => {
-                path.node.openingElement.name;
-                let tag = getTag(path.node.openingElement.name);
+            JSXElement: {
+                exit: (path) => {
+                    // console.debug("[debug] JSXElement", path);
 
-                if (TagRef.includes(tag)) {
-                    tag = `"${tag}"`;
-                }
+                    let tag = getTag(path.node.openingElement.name);
 
-                const statement = buildHyper({
-                    tag: tag,
-                    children: undefined,
-                });
+                    if (TagRef.has(tag)) {
+                        tag = `"${tag}"`;
+                    }
 
-                path.replaceWith(statement as t.Statement);
+                    const children = path.node.children;
+                    if (t.isJSXExpressionContainer(children)) {
+                    } else {
+                    }
+                    children.filter((child)=>!t.isJSXExpressionContainer(child))
+
+                    const statement = buildArrowFunction({
+                        body: buildHyper({
+                            tag: tag,
+                            children: t.arrayExpression(children),
+                        }),
+                    });
+
+                    path.replaceWith(statement as t.Statement);
+                },
+            },
+            JSXText(path) {
+                const nodeText = path.node.value;
+                path.replaceWith(t.stringLiteral(nodeText));
             },
         },
     };
