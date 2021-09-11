@@ -10,9 +10,9 @@ const buildJSXText = template(`let node;
 let inited = false;
 createEffect(() => {
     if (!inited) {
-        node = document.createTextNode(name());
+        node = document.createTextNode(%%text%%);
     }
-    node.nodeValue = name();
+    node.nodeValue = %%text%%;
 });
 inited = true;
 el.append(node);`);
@@ -61,12 +61,40 @@ export default declare((api, options, dirname) => {
                     if (t.isJSXExpressionContainer(children)) {
                     } else {
                     }
-                    children.filter((child)=>!t.isJSXExpressionContainer(child))
+
+                    // child is t.JSXElement | t.JSXFragment
+                    children
+                        .map((child) => {
+                            if (t.isJSXExpressionContainer(child)) {
+                                return child.expression;
+                            }
+                            return child;
+                        })
+                        .filter(
+                            (child): child is t.Expression =>
+                                !t.isJSXEmptyExpression(child) ||
+                                !t.isJSXSpreadChild(child) ||
+                                !t.isJSXText(child)
+                        );
 
                     const statement = buildArrowFunction({
                         body: buildHyper({
                             tag: tag,
-                            children: t.arrayExpression(children),
+                            children: t.arrayExpression(
+                                children
+                                    .map((child) => {
+                                        if (t.isJSXExpressionContainer(child)) {
+                                            return child.expression;
+                                        }
+                                        return child;
+                                    })
+                                    .filter(
+                                        (child): child is t.Expression =>
+                                            !t.isJSXEmptyExpression(child) ||
+                                            !t.isJSXSpreadChild(child) ||
+                                            !t.isJSXText(child)
+                                    )
+                            ),
                         }),
                     });
 
