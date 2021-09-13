@@ -2,17 +2,57 @@
 
 > From https://indepth.dev/posts/1289/solidjs-reactivity-to-rendering
 
-We've seen reactivity make its mark in several JavaScript UI frameworks from React to Angular and everything in between. Perhaps you've used MobX in a React project, or wired up reactive templates in Vue. Maybe you've used RxJS with Angular. Or had Svelte compile its reactive system into your unsuspecting code.
+[反应性]: reactivity
 
-SolidJS is a UI rendering library that takes the unique approach of being completely built on top of a reactive system. It isn't just some way to automate state management. It is the renderer, the components, every aspect of how the library works.
+We've seen reactivity make its mark in several JavaScript UI frameworks from React to Angular and everything in between.
+
+我们已经看到[反应性]从 React 到 Angular 等多个库之间留下了印记
+
+Perhaps you've used MobX in a React project, or wired up reactive templates in Vue.
+
+也许你在 React 项目中使用过 MobX，或者在 Vue 中使用过响应式模板。
+
+Maybe you've used RxJS with Angular.
+
+也许你已经在 Angular 中使用过 RxJS。
+
+Or had Svelte compile its reactive system into your unsuspecting code.
+
+或者让 Svelte 将其反应式系统编译成你信任的代码。
+
+SolidJS is a UI rendering library that takes the unique approach of being completely built on top of a reactive system.
+
+SolidJS 是一个 UI 渲染库，它采用完全建立在反应式系统之上的独特方法。
+
+It isn't just some way to automate state management.
+
+这不仅仅是自动化状态管理的某种方式。
+
+It is the renderer, the components, every aspect of how the library works.
+
+它是渲染器、组件以及库工作方式的各个方面。
 
 As it turns out this approach is performant. I mean really performant:
+事实证明，这种方法是高效的。 我的意思是真正的高性能：
 
-Note: VanillaJS and WASM-Bindgen are both reference implementations for JavaScript and WASM respectively. They use the most optimal handcrafted code to perform the benchmarks without using a library.
+Note: VanillaJS and WASM-Bindgen are both reference implementations for JavaScript and WASM respectively. 
 
-It also lends to really powerful composition patterns. Each reactive primitive is atomic and composable. But more importantly only accountable to the reactive life-cycle.
+注意：VanillaJS 和 WASM-Bindgen 分别是 JavaScript 和 WASM 的参考实现。
+
+They use the most optimal handcrafted code to perform the benchmarks without using a library.
+他们使用最优化的手工代码在不使用库的情况下执行基准测试。
+
+It also lends to really powerful composition patterns. 
+它还提供了非常强大的构图模式。
+
+Each reactive primitive is atomic and composable. 
+每个反应原语都是原子的和可组合的。
+
+But more importantly only accountable to the reactive life-cycle.
+但更重要的是只对反应式生命周期负责。
 
 So no "Hook Rules". No this bindings. No consideration around stale closures.
+所以没有“钩子规则”。 没有这些绑定。 不考虑过时的关闭。
 
 But it is often unclear how we can get from the easy example of automatically triggering a console.log to fully updating views.
 
