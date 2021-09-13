@@ -31,22 +31,22 @@ const App = () => {
         }
     };
 
-    setTimeout(() => {
-        const button = document.getElementsByTagName("button").item(0);
-        console.log(button);
-        const handler = setInterval(() => {
-            for (let index = 0; index < 10; index++) {
-                button?.click();
-            }
-        }, 50);
-        setTimeout(() => {
-            clearInterval(handler);
-        }, 100000);
-    }, 1000);
+    // setTimeout(() => {
+    //     const button = document.getElementsByTagName("button").item(0);
+    //     console.log(button);
+    //     const handler = setInterval(() => {
+    //         for (let index = 0; index < 10; index++) {
+    //             button?.click();
+    //         }
+    //     }, 50);
+    //     setTimeout(() => {
+    //         clearInterval(handler);
+    //     }, 100000);
+    // }, 1000);
 
     return hyper("div", {
         children: [
-            (el: Element) => {
+            () => {
                 let node: Node;
                 let inited = false;
                 createEffect(() => {
@@ -56,23 +56,17 @@ const App = () => {
                     node.nodeValue = name();
                 });
                 inited = true;
-                el.append(node!);
+                return node!;
             },
-            (el: Element) => {
-                el.append(
-                    hyper("button", {
-                        children: [
-                            (el: Element) => {
-                                el.textContent = "change";
-                            },
-                        ],
-                        onclick: (el: Element) => {
-                            Reflect.set(el, "onclick", change);
-                        },
-                    })
-                );
+            () => {
+                return hyper("button", {
+                    children: ["change"],
+                    onclick: (el: Element) => {
+                        Reflect.set(el, "onclick", change);
+                    },
+                });
             },
-            (el: Element) => {
+            () => {
                 const entries = new Map<any, Element>();
                 createEffect(() => {
                     const data = todos();
@@ -81,13 +75,9 @@ const App = () => {
                         if (withFT.$flag === FLAG.NEW) {
                             createRoot(() => {
                                 const child = hyper("div", {
-                                    children: [
-                                        (el: Element) =>
-                                            (el.textContent =
-                                                withFT.data.toString()),
-                                    ],
+                                    children: [withFT.data.toString()],
                                 });
-                                el.append(child);
+                                // el.append(child);
                                 entries.set(withFT.data, child);
                             });
                         }
@@ -96,8 +86,8 @@ const App = () => {
                             entries.delete(withFT.data);
                         }
                     });
-
                 });
+                return [...entries.values()];
             },
         ],
         style: (el: HTMLElement) => {
