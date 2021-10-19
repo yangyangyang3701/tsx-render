@@ -19,12 +19,12 @@ export interface CornElement<P = any> {
     createElement: () => void;
 }
 
-export type JSXElement<P = any> = (props: P) => CornElement<P>;
+export type CornComponent<P = any> = (props: P) => CornElement<P>;
 
 export type Renderer = (element: CornElement, container: Element) => void;
 
 export type JSXFunction = <P extends {}>(
-    type: string | JSXElement<P>,
+    type: string | CornComponent<P>,
     props: P,
     key: any
 ) => CornElement<P>;

@@ -18,7 +18,7 @@ const Hello = (props: { name: string }) => {
     return (
         <div>
             <button onClick={onClick}>test button</button>
-            Hello {state()}
+            Hello {state}
             {items.map((i) => (
                 <div>{i}</div>
             ))}
