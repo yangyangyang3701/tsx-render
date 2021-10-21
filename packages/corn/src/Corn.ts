@@ -50,16 +50,16 @@ const handleCornChild = (child: CornChild) => {
     }
 
     if (child instanceof Function) {
-        const res = child();
         let element = document.createTextNode("");
         createEffect(() => {
+            const res = child();
             if (res.create != null) {
-                element = child().create();
-                child().mount(element);
+                element = res.create();
+                res.mount(element);
                 return element;
             }
             if (isCornText(res)) {
-                element.textContent = child().toString();
+                element.textContent = res.toString();
             }
         });
 
