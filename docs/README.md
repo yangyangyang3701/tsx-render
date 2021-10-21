@@ -22,7 +22,7 @@ tsx-render 是一组实验室级别的库，目的是用于学习和研究。
 
 -   运行例子
 
-```
-cd examples/01-post
-yarn start
-```
+    ```
+    cd examples/01-post
+    yarn start
+    ```
