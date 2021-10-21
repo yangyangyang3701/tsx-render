@@ -31,6 +31,36 @@ export interface Props {
     onClick?: () => void;
 }
 
+const handleFunctionChild = (
+    cornComponent: (props?: any) => CornElement | any,
+    props?: any
+): Text | Element | Element[] => {
+    let element = document.createTextNode("");
+    let inited = false;
+
+    createEffect(() => {
+        const res = cornComponent(props);
+        console.log("test test res", res);
+        if (res.create != null) {
+            console.log(inited);
+            if (!inited) {
+                element = res.create();
+                res.mount(element);
+                inited = true;
+            } else {
+                const newElement = res.create();
+                res.mount(newElement);
+                element.replaceWith(newElement);
+                element = newElement;
+            }
+        }
+        if (isCornText(res)) {
+            element.textContent = res.toString();
+        }
+    });
+    return element!;
+};
+
 const handleCornElement = (cornEl: CornElement) => {
     console.debug("[debug] handleCornElement", cornEl);
     const element = cornEl.create();
@@ -50,20 +80,7 @@ const handleCornChild = (child: CornChild) => {
     }
 
     if (child instanceof Function) {
-        let element = document.createTextNode("");
-        createEffect(() => {
-            const res = child();
-            if (res.create != null) {
-                element = res.create();
-                res.mount(element);
-                return element;
-            }
-            if (isCornText(res)) {
-                element.textContent = res.toString();
-            }
-        });
-
-        return element;
+        return handleFunctionChild(child);
     }
 
     return handleCornElement(child);
