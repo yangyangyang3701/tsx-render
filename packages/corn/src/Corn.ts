@@ -35,24 +35,13 @@ const handleFunctionChild = (
     cornComponent: (props?: any) => CornElement | any,
     props?: any
 ): Text | Element | Element[] => {
-    let element = document.createTextNode("");
-    let inited = false;
-
+    let element: Text | Element = document.createTextNode("");
     createEffect(() => {
         const res = cornComponent(props);
-        console.log("test test res", res);
         if (res.create != null) {
-            console.log(inited);
-            if (!inited) {
-                element = res.create();
-                res.mount(element);
-                inited = true;
-            } else {
-                const newElement = res.create();
-                res.mount(newElement);
-                element.replaceWith(newElement);
-                element = newElement;
-            }
+            const newElement = handleCornElement(res);
+            element.replaceWith(newElement);
+            element = newElement;
         }
         if (isCornText(res)) {
             element.textContent = res.toString();
