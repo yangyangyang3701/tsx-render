@@ -23,8 +23,11 @@ const isSetFunction = <T>(v: T | ((d: T) => T)): v is (d: T) => T => {
 class Reactive {
     private roots: IRoot[] = [];
     constructor() {
+        this.createRoot = this.createRoot.bind(this);
         this.createSignal = this.createSignal.bind(this);
         this.createDiffSignal = this.createDiffSignal.bind(this);
+        this.createMemo = this.createMemo.bind(this);
+        this.createEffect = this.createEffect.bind(this);
     }
     private static handler = (effects: Set<IEffect>, root: IRoot) => ({
         get(target: object, p: string | symbol, receiver: any) {
@@ -189,8 +192,14 @@ class Reactive {
         return [read, write];
     }
 
-    public createMemo<T>(fn: (pre?: T) => T) {
-        return this.createEffect(fn);
+    public createMemo<T>(fn: (prev?: T) => T) {
+        const [state, setState] = this.createSignal<T>();
+        this.createEffect<T>((prev) => {
+            const value = fn(prev);
+            setState(value);
+            return value;
+        });
+        return state;
     }
 
     public createEffect = <T>(fn: (pre?: T) => T) => {
