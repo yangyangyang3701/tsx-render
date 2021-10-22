@@ -189,15 +189,20 @@ class Reactive {
         return [read, write];
     }
 
+    public createMemo<T>(fn: (pre?: T) => T) {
+        return this.createEffect(fn);
+    }
+
     public createEffect = <T>(fn: (pre?: T) => T) => {
         console.debug("[debug] create effect");
         const root = this.roots[this.roots.length - 1];
-        const effect: IEffect = {
+        const effect: IEffect<T> = {
             fn,
         };
         root.effects.push(effect);
-        effect.prev = fn();
+        effect.prev = fn(effect.prev);
         root.effects.pop();
+        return effect.prev;
     };
 
     public batch = (fn: () => void) => {
