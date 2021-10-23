@@ -4,17 +4,20 @@ const Hello = (props: { name: string }) => {
     const { name } = props;
 
     const [state, setState] = createSignal(true);
-    createMemo(() => {
-        return <div>{state()}</div>;
-    });
+
+    const [todos, setTodos] = createSignal<boolean[]>([]);
 
     const onClick = () => {
-        console.log("test test");
         setState((s) => !s);
+        setTodos((todos) => [...todos, state()]);
     };
 
     createEffect(() => {
-        console.log(state());
+        console.log("Hello", name, state());
+    });
+
+    createEffect(() => {
+        console.log("Hello", name, todos());
     });
 
     return (
@@ -24,6 +27,7 @@ const Hello = (props: { name: string }) => {
                 <button onClick={onClick}>test button</button>
             </div>
             <div>state {state}</div>
+            <div>todos</div>
         </div>
     );
 };
