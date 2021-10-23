@@ -1,14 +1,16 @@
-import { createEffect, createSignal } from "@idealjs/corn";
-let items: number[] = [1, 2, 3];
+import { createEffect, createSignal, createMemo } from "@idealjs/corn";
 
 const Hello = (props: { name: string }) => {
     const { name } = props;
 
-    const [state, setState] = createSignal("state");
+    const [state, setState] = createSignal(true);
+    createMemo(() => {
+        return <div>{state()}</div>;
+    });
 
     const onClick = () => {
         console.log("test test");
-        setState("test");
+        setState((s) => !s);
     };
 
     createEffect(() => {
@@ -17,12 +19,11 @@ const Hello = (props: { name: string }) => {
 
     return (
         <div>
-            <button onClick={onClick}>test button</button>
-            Hello {state}
-            {items.map((i) => (
-                <div>{i}</div>
-            ))}
-            Hello {name}
+            <div>Hello {name}</div>
+            <div>
+                <button onClick={onClick}>test button</button>
+            </div>
+            <div>state {state}</div>
         </div>
     );
 };
