@@ -196,7 +196,9 @@ class Reactive {
         const [state, setState] = this.createSignal<T>();
         this.createEffect<T>((prev) => {
             const value = fn(prev);
-            setState(value);
+            if (value !== prev) {
+                setState(value);
+            }
             return value;
         });
         return state;

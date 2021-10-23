@@ -12,4 +12,5 @@ export const createSignal = corn.reactive.createSignal;
 export const createDiffSignal = corn.reactive.createDiffSignal;
 export const createEffect = corn.reactive.createEffect;
 export const createRoot = corn.reactive.createRoot;
+export const createMemo = corn.reactive.createMemo;
 export const jsx = corn.jsx;
