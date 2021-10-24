@@ -9,4 +9,4 @@ export namespace JSX {
 
 export const jsx = corn.jsx;
 
-export const jsxs = corn.jsx;
+export const jsxs = corn.jsxs;

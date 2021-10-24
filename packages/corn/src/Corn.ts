@@ -25,9 +25,9 @@ interface ICorn {
     jsx: JSXFunction;
 }
 
-export interface Props {
+export interface Props<Child = CornChild | CornChild[]> {
     ref?: any;
-    children?: CornChild | CornChild[];
+    children?: Child;
     onClick?: () => void;
 }
 
@@ -97,7 +97,66 @@ class Corn implements ICorn {
         element.mount(container);
     };
 
-    public jsx = <P extends Props = {}>(
+    public jsx = <P extends Props<CornChild> = {}>(
+        type: string | CornComponent<P>,
+        props: P,
+        key: any
+    ) => {
+        if (type instanceof Function) {
+            return type(props);
+        }
+
+        let cornElement: CornElement | null = null;
+
+        const create = () => {
+            const element = document.createElement(type);
+            Object.entries(props).forEach((entry) => {
+                if (entry[0] === "style") {
+                }
+                if (DOMAttributesOBJ[entry[0]] != null) {
+                    Reflect.set(element, DOMAttributesOBJ[entry[0]], entry[1]);
+                }
+            });
+            return element;
+        };
+
+        const mount = (target: Element) => {
+            console.debug("[debug] mount", target);
+
+            if (props.children == null) {
+                target.appendChild(create());
+                return;
+            }
+
+            if (isArray(props.children)) {
+                props.children.forEach((child) => {
+                    appedCornChild(target, child);
+                });
+                return;
+            }
+
+            appedCornChild(target, props.children);
+        };
+
+        const update = () => {};
+
+        const destory = () => {};
+
+        cornElement = {
+            type,
+            props,
+            key,
+
+            create,
+            mount,
+            update,
+            destory,
+        };
+
+        return cornElement!;
+    };
+
+    public jsxs = <P extends Props<CornChild[]> = {}>(
         type: string | CornComponent<P>,
         props: P,
         key: any
