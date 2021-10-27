@@ -1,7 +1,8 @@
-import { jsx, render } from "@idealjs/corn";
 import App from "./App";
+import hyper from "./lib/hyper";
+import render from "./lib/render";
 
 window.onload = () => {
     const root = document.getElementById("App");
-    render(jsx(App, {}, "a"), root!);
+    render(hyper(App, {}), root);
 };

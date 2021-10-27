@@ -103,7 +103,7 @@ class Reactive {
         };
     };
 
-    public createRoot = (fn: () => void) => {
+    public createRoot = <T>(fn: () => T): T => {
         console.debug("[debug] createRoot");
         const root: IRoot = {
             effects: [],
@@ -113,8 +113,9 @@ class Reactive {
             },
         };
         this.roots.push(root);
-        fn();
+        const res = fn();
         this.roots.pop();
+        return res;
     };
 
     public createSignal<T>(): [
@@ -204,7 +205,7 @@ class Reactive {
         return state;
     }
 
-    public createEffect = <T>(fn: (pre?: T) => T) => {
+    public createEffect = <T>(fn: (prev?: T) => T) => {
         console.debug("[debug] create effect");
         const root = this.roots[this.roots.length - 1];
         const effect: IEffect<T> = {

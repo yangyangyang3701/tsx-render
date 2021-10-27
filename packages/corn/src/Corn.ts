@@ -38,10 +38,16 @@ const handleFunctionChild = (
     let element: Text | Element = document.createTextNode("");
     createEffect(() => {
         const res = cornComponent(props);
+        console.log("test test", res);
         if (res.create != null) {
             const newElement = handleCornElement(res);
             element.replaceWith(newElement);
             element = newElement;
+        }
+        if (isArray(res)) {
+            element = res.map((r) => {
+                return handleCornElement(r);
+            }) as any;
         }
         if (isCornText(res)) {
             element.textContent = res.toString();
