@@ -4,7 +4,7 @@ import hyper from "./lib/hyper";
 
 const App = (): CornElement => {
     const [name, setName] = createSignal<string>("world");
-    const [todos, setTodos] = createSignal<string[]>(["world"]);
+    const [todos, setTodos] = createSignal<number[]>([]);
     const nameDiv = createMemo(() => {
         return hyper("div", { children: [name()] });
     });
@@ -13,17 +13,23 @@ const App = (): CornElement => {
         return todos().map((todo) => hyper("div", { children: [todo] }));
     });
 
+    const testFunc = () => "test";
+
     setTimeout(() => {
-        console.log("timer");
         setName("arnold");
-        setTodos((todos) => [...todos, "arnold"]);
+    }, 1000);
+
+    setInterval(() => {
+        setTodos((todos) => [...todos, todos.length + 1]);
     }, 1000);
 
     createEffect(() => {
         console.log("test test", name());
     });
 
-    return hyper("div", { children: ["hello", name, nameDiv, todosDiv] });
+    return hyper("div", {
+        children: ["hello", name, nameDiv, todosDiv, testFunc],
+    });
 };
 
 export default App;
