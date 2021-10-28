@@ -31,7 +31,7 @@ class CornElement<Props extends { children?: any[] } = any> {
 
             const children = this.props.children
                 ? this.props.children
-                      .map(
+                      .flatMap(
                           (
                               child: Primitive | CornElement | ReadFunction<any>
                           ) => {
@@ -50,9 +50,15 @@ class CornElement<Props extends { children?: any[] } = any> {
                                           res.toString()
                                       );
                                   }
+                                  if (res instanceof CornElement) {
+                                      return res.create();
+                                  }
+                                  if (Array.isArray(res)) {
+                                      return res.map((r) => r.create());
+                                  }
                               }
-                              console.debug(
-                                  "[debug] create",
+                              console.warn(
+                                  "[warn] skip create",
                                   child,
                                   typeof child
                               );
