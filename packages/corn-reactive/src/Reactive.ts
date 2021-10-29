@@ -23,8 +23,11 @@ const isSetFunction = <T>(v: T | ((d: T) => T)): v is (d: T) => T => {
 class Reactive {
     private roots: IRoot[] = [];
     constructor() {
+        this.createRoot = this.createRoot.bind(this);
         this.createSignal = this.createSignal.bind(this);
         this.createDiffSignal = this.createDiffSignal.bind(this);
+        this.createMemo = this.createMemo.bind(this);
+        this.createEffect = this.createEffect.bind(this);
     }
     private static handler = (effects: Set<IEffect>, root: IRoot) => ({
         get(target: object, p: string | symbol, receiver: any) {
@@ -100,7 +103,7 @@ class Reactive {
         };
     };
 
-    public createRoot = (fn: () => void) => {
+    public createRoot = <T>(fn: () => T): T => {
         console.debug("[debug] createRoot");
         const root: IRoot = {
             effects: [],
@@ -110,8 +113,9 @@ class Reactive {
             },
         };
         this.roots.push(root);
-        fn();
+        const res = fn();
         this.roots.pop();
+        return res;
     };
 
     public createSignal<T>(): [
@@ -189,15 +193,28 @@ class Reactive {
         return [read, write];
     }
 
-    public createEffect = <T>(fn: (pre?: T) => T) => {
+    public createMemo<T>(fn: (prev?: T) => T) {
+        const [state, setState] = this.createSignal<T>();
+        this.createEffect<T>((prev) => {
+            const value = fn(prev);
+            if (value !== prev) {
+                setState(value);
+            }
+            return value;
+        });
+        return state;
+    }
+
+    public createEffect = <T>(fn: (prev?: T) => T) => {
         console.debug("[debug] create effect");
         const root = this.roots[this.roots.length - 1];
-        const effect: IEffect = {
+        const effect: IEffect<T> = {
             fn,
         };
         root.effects.push(effect);
-        effect.prev = fn();
+        effect.prev = fn(effect.prev);
         root.effects.pop();
+        return effect.prev;
     };
 
     public batch = (fn: () => void) => {

@@ -1,30 +1,41 @@
+import { ReadFunction } from "@idealjs/corn-reactive";
+
 export type CornText = string | number;
 
 export const isCornText = (
     cornChild: CornChild | undefined
 ): cornChild is CornText => {
-    return typeof cornChild == "string" || typeof cornChild == "number";
+    return (
+        typeof cornChild == "string" ||
+        typeof cornChild == "number" ||
+        typeof cornChild == "boolean"
+    );
 };
 
-export type CornChild = CornText | CornElement | CornElement[];
+export type CornChild =
+    | CornText
+    | CornComponent
+    | ReadFunction<any>
+    | CornElement
+    | CornElement[];
 
 export interface CornElement<P = any> {
-    type: string | CornElement<P>;
+    type: string | CornComponent<P>;
     props: P;
     key: any;
-    create: () => void;
+    create: () => Element;
     mount: (container: Element) => void;
     update: () => void;
     destory: () => void;
-    createElement: () => void;
+    // createElement: () => void;
 }
 
-export type JSXElement<P = any> = (props: P) => CornElement<P>;
+export type CornComponent<P = any> = (props?: P) => CornElement<P>;
 
 export type Renderer = (element: CornElement, container: Element) => void;
 
 export type JSXFunction = <P extends {}>(
-    type: string | JSXElement<P>,
+    type: string | CornComponent<P>,
     props: P,
     key: any
 ) => CornElement<P>;

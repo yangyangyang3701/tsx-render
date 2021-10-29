@@ -6,12 +6,13 @@ import TYPES, {
     CornElement,
     DOMAttributesOBJ,
     isCornText,
-    JSXElement,
+    CornComponent,
     JSXFunction,
     Renderer,
 } from "./types";
+import { createEffect, createRoot } from "..";
 
-const isString = (type: string | JSXElement | CornChild): type is string => {
+const isString = (type: string | CornComponent | CornChild): type is string => {
     return typeof type == "string";
 };
 
@@ -24,11 +25,72 @@ interface ICorn {
     jsx: JSXFunction;
 }
 
-export interface Props {
+export interface Props<Child = CornChild | CornChild[]> {
     ref?: any;
-    children?: CornChild | CornChild[];
+    children?: Child;
     onClick?: () => void;
 }
+
+const handleFunctionChild = (
+    cornComponent: (props?: any) => CornElement | any,
+    props?: any
+): Text | Element | Element[] => {
+    let element: Text | Element = document.createTextNode("");
+    createEffect(() => {
+        const res = cornComponent(props);
+        console.log("test test", res);
+        if (res.create != null) {
+            const newElement = handleCornElement(res);
+            element.replaceWith(newElement);
+            element = newElement;
+        }
+        if (isArray(res)) {
+            element = res.map((r) => {
+                return handleCornElement(r);
+            }) as any;
+        }
+        if (isCornText(res)) {
+            element.textContent = res.toString();
+        }
+    });
+    return element!;
+};
+
+const handleCornElement = (cornEl: CornElement) => {
+    console.debug("[debug] handleCornElement", cornEl);
+    const element = cornEl.create();
+    cornEl.mount(element);
+    return element;
+};
+
+const handleCornChild = (child: CornChild) => {
+    if (isCornText(child)) {
+        return document.createTextNode(child.toString());
+    }
+
+    if (isArray(child)) {
+        return child.map((c) => {
+            return handleCornElement(c);
+        });
+    }
+
+    if (child instanceof Function) {
+        return handleFunctionChild(child);
+    }
+
+    return handleCornElement(child);
+};
+
+const appedCornChild = (target: Element, child: CornChild) => {
+    const res = handleCornChild(child);
+    if (res) {
+        if (isArray(res)) {
+            target.append(...res);
+        } else {
+            target.append(res);
+        }
+    }
+};
 
 @injectable()
 class Corn implements ICorn {
@@ -38,119 +100,123 @@ class Corn implements ICorn {
     constructor() {}
 
     public render = (element: CornElement, container: Element) => {
-        element.createElement();
         element.mount(container);
     };
 
-    public jsx = <P extends Props = {}>(
-        type: string | JSXElement<P>,
+    public jsx = <P extends Props<CornChild> = {}>(
+        type: string | CornComponent<P>,
         props: P,
         key: any
     ) => {
+        if (type instanceof Function) {
+            return type(props);
+        }
+
         let cornElement: CornElement | null = null;
 
-        this.reactive.createRoot(() => {
-            if (isString(type)) {
-                let element: Element;
+        const create = () => {
+            const element = document.createElement(type);
+            Object.entries(props).forEach((entry) => {
+                if (entry[0] === "style") {
+                }
+                if (DOMAttributesOBJ[entry[0]] != null) {
+                    Reflect.set(element, DOMAttributesOBJ[entry[0]], entry[1]);
+                }
+            });
+            return element;
+        };
 
-                const create = () => {
-                    element = document.createElement(type);
-                    Object.entries(props).forEach((entry) => {
-                        if (entry[0] === "children") {
-                            if (isArray(props.children)) {
-                                props.children.forEach((child) => {
-                                    if (!isCornText(child)) {
-                                        if (isArray(child)) {
-                                            child.forEach((child) => {
-                                                child.create();
-                                            });
-                                        } else {
-                                            child.create();
-                                        }
-                                    }
-                                });
-                            } else if (!isCornText(props.children)) {
-                                props.children?.create();
-                            }
-                        }
-                        if (entry[0] === "style") {
-                        }
-                        if (DOMAttributesOBJ[entry[0]] != null) {
-                            Reflect.set(
-                                element,
-                                DOMAttributesOBJ[entry[0]],
-                                entry[1]
-                            );
-                        }
-                    });
-                };
+        const mount = (target: Element) => {
+            console.debug("[debug] mount", target);
 
-                const upsert = () => {};
-
-                const mount = (target: Element) => {
-                    if (isArray(props.children)) {
-                        props.children.forEach((child) => {
-                            if (!isCornText(child)) {
-                                if (isArray(child)) {
-                                    child.forEach((child) => {
-                                        child.mount(element);
-                                    });
-                                } else {
-                                    child.mount(element);
-                                }
-                            } else {
-                                element.appendChild(
-                                    document.createTextNode(child.toString())
-                                );
-                            }
-                        });
-                    } else if (!isCornText(props.children)) {
-                        props.children?.mount(element);
-                    } else {
-                        element.textContent = props.children.toString();
-                    }
-                    target.appendChild(element);
-                };
-
-                const update = () => {};
-
-                const destory = () => {};
-
-                const createElement = () => {
-                    //@ts-ignore
-                    this.reactive.createRoot(() => {
-                        let inited = false;
-                        this.reactive.createEffect(() => {
-                            if (!inited) {
-                                create();
-                                inited = true;
-                            } else {
-                                console.log("test test update");
-                                update();
-                            }
-                        });
-                    });
-                };
-
-                cornElement = {
-                    type,
-                    props,
-                    key,
-
-                    create,
-                    mount,
-                    update,
-                    destory,
-                    createElement,
-                };
-            } else {
-                cornElement = type(props);
+            if (props.children == null) {
+                target.appendChild(create());
+                return;
             }
 
-            if (props.ref) {
-                props.ref.current = cornElement;
+            if (isArray(props.children)) {
+                props.children.forEach((child) => {
+                    appedCornChild(target, child);
+                });
+                return;
             }
-        });
+
+            appedCornChild(target, props.children);
+        };
+
+        const update = () => {};
+
+        const destory = () => {};
+
+        cornElement = {
+            type,
+            props,
+            key,
+
+            create,
+            mount,
+            update,
+            destory,
+        };
+
+        return cornElement!;
+    };
+
+    public jsxs = <P extends Props<CornChild[]> = {}>(
+        type: string | CornComponent<P>,
+        props: P,
+        key: any
+    ) => {
+        if (type instanceof Function) {
+            return type(props);
+        }
+
+        let cornElement: CornElement | null = null;
+
+        const create = () => {
+            const element = document.createElement(type);
+            Object.entries(props).forEach((entry) => {
+                if (entry[0] === "style") {
+                }
+                if (DOMAttributesOBJ[entry[0]] != null) {
+                    Reflect.set(element, DOMAttributesOBJ[entry[0]], entry[1]);
+                }
+            });
+            return element;
+        };
+
+        const mount = (target: Element) => {
+            console.debug("[debug] mount", target);
+
+            if (props.children == null) {
+                target.appendChild(create());
+                return;
+            }
+
+            if (isArray(props.children)) {
+                props.children.forEach((child) => {
+                    appedCornChild(target, child);
+                });
+                return;
+            }
+
+            appedCornChild(target, props.children);
+        };
+
+        const update = () => {};
+
+        const destory = () => {};
+
+        cornElement = {
+            type,
+            props,
+            key,
+
+            create,
+            mount,
+            update,
+            destory,
+        };
 
         return cornElement!;
     };

@@ -1,9 +1,8 @@
-import { createRoot } from "@idealjs/corn";
 import App from "./App";
+import hyper from "./lib/hyper";
+import render from "./lib/render";
 
 window.onload = () => {
     const root = document.getElementById("App");
-    createRoot(() => {
-        root?.append(App());
-    });
+    render(hyper(App, {}), root);
 };
